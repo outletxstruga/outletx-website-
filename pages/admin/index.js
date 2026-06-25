@@ -74,6 +74,7 @@ export default function AdminDashboard() {
             <a href="/admin/orders" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Orders</a>
 <a href="/admin/settings" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Settings</a>
             <a href="/admin/order-form" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Order Form</a>
+<a href="/admin/customers" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Customers</a>
             <a href="/" target="_blank" style={{color: '#888', textDecoration: 'none', fontSize: 12}}>View Site</a>
             <button onClick={handleLogout} style={{background: '#DC2626', color: '#FFF', border: 'none', fontSize: 11, fontWeight: 700, padding: '7px 14px', cursor: 'pointer'}}>Logout</button>
           </div>
