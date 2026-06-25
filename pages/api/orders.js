@@ -40,10 +40,11 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, order });
     }
 
-    // Send confirmation email to customer
+    // Send confirmation to customer
     try {
-      const { sendOrderEmail } = await import('../../lib/email');
+      const { sendOrderEmail, sendAdminNotification } = await import('../../lib/email');
       await sendOrderEmail({ ...order, status: 'pending' });
+      await sendAdminNotification({ ...order, status: 'pending' });
     } catch (err) {
       console.error('Email error:', err);
     }
@@ -53,9 +54,8 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     const { id, status } = req.body;
-    const { error } = await supabase.from('orders').update({ status }).eq('id', id);
+    await supabase.from('orders').update({ status }).eq('id', id);
     
-    // Send email when status changes to shipped
     if (status === 'shipped') {
       try {
         const { data } = await supabase.from('orders').select('*').eq('id', id).single();
