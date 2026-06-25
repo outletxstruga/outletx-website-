@@ -13,7 +13,7 @@ export default function AdminOrders() {
     setAuthorized(true);
     fetch('/api/orders')
       .then(res => res.json())
-      .then(data => setOrders(data));
+      .then(data => setOrders(data || []));
   }, []);
 
   const updateStatus = async (orderId, status) => {
@@ -24,7 +24,7 @@ export default function AdminOrders() {
     });
     const res = await fetch('/api/orders');
     const data = await res.json();
-    setOrders(data);
+    setOrders(data || []);
   };
 
   const handleLogout = () => {
@@ -73,11 +73,11 @@ export default function AdminOrders() {
                   <tbody>
                     {orders.map((order) => (
                       <tr key={order.id} style={{borderBottom: '1px solid #F0F0F0'}}>
-                        <td style={{padding: '10px 8px'}}>#{order.id.toString().slice(-6)}</td>
-                        <td style={{padding: '10px 8px', color: '#999', fontSize: '11px'}}>{new Date(order.createdAt).toLocaleDateString()}</td>
-                        <td style={{padding: '10px 8px', fontWeight: '600'}}>{order.customerInfo?.fullName || '-'}</td>
-                        <td style={{padding: '10px 8px'}}>{order.customerInfo?.phone || '-'}</td>
-                        <td style={{padding: '10px 8px', fontWeight: '600'}}>{order.product?.name || '-'}</td>
+                        <td style={{padding: '10px 8px'}}>#{String(order.id).slice(-6)}</td>
+                        <td style={{padding: '10px 8px', color: '#999', fontSize: '11px'}}>{order.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}</td>
+                        <td style={{padding: '10px 8px', fontWeight: '600'}}>{order.customer_name || '-'}</td>
+                        <td style={{padding: '10px 8px'}}>{order.customer_phone || '-'}</td>
+                        <td style={{padding: '10px 8px', fontWeight: '600'}}>{order.product_name || '-'}</td>
                         <td style={{padding: '10px 8px', fontWeight: '700'}}>{order.total} MKD</td>
                         <td style={{padding: '10px 8px'}}>
                           <span style={{
