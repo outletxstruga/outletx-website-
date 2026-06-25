@@ -6,8 +6,12 @@ export default async function handler(req, res) {
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
-    if (error) return res.status(200).json([]);
-    return res.status(200).json(data);
+    
+    if (error) {
+      console.error('GET error:', error);
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(data || []);
   }
 
   if (req.method === 'POST') {
@@ -29,14 +33,41 @@ export default async function handler(req, res) {
       status: 'pending',
     };
 
-    const { error } = await supabase.from('orders').insert([order]);
-    if (error) return res.status(200).json({ success: true, order });
-    return res.status(200).json({ success: true, order });
+    const { data, error } = await supabase.from('orders').insert([order]).select();
+    
+    if (error) {
+      console.error('POST error:', error);
+      return res.status(200).json({ success: true, order });
+    }
+
+    // Send confirmation email to customer
+    try {
+      const { sendOrderEmail } = await import('../../lib/email');
+      await sendOrderEmail({ ...order, status: 'pending' });
+    } catch (err) {
+      console.error('Email error:', err);
+    }
+
+    return res.status(200).json({ success: true, order: data[0] });
   }
 
   if (req.method === 'PUT') {
     const { id, status } = req.body;
-    await supabase.from('orders').update({ status }).eq('id', id);
+    const { error } = await supabase.from('orders').update({ status }).eq('id', id);
+    
+    // Send email when status changes to shipped
+    if (status === 'shipped') {
+      try {
+        const { data } = await supabase.from('orders').select('*').eq('id', id).single();
+        if (data && data.customer_email) {
+          const { sendOrderEmail } = await import('../../lib/email');
+          await sendOrderEmail(data);
+        }
+      } catch (err) {
+        console.error('Email error:', err);
+      }
+    }
+    
     return res.status(200).json({ success: true });
   }
 
