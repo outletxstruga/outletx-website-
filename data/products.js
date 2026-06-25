@@ -22,6 +22,35 @@ const products = [
     "discount": 12,
     "inStock": true,
     "featured": false
+  },
+  {
+    "id": 2,
+    "brand": "AIR JORDAN",
+    "name": "AIR JORDAN",
+    "sku": "DM0022-220",
+    "category": "Shoes",
+    "subcategory": "Lifestyle",
+    "gender": "Men",
+    "ageGroup": null,
+    "oldPrice": 12990,
+    "newPrice": 5990,
+    "sizes": [
+      "40",
+      "42",
+      "43",
+      "44",
+      "45",
+      "46"
+    ],
+    "color": "Red and Black",
+    "description": "",
+    "images": [
+      "/images/products/1782429641123_760838_00.png.png"
+    ],
+    "stock": 6,
+    "discount": 54,
+    "inStock": true,
+    "featured": false
   }
 ];
 
