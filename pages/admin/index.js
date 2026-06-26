@@ -47,12 +47,10 @@ export default function AdminDashboard() {
   const totalValue = products.reduce((sum, p) => sum + (p.newPrice * (p.stock || 0)), 0);
   const todayOrders = orders.filter(o => new Date(o.createdAt || o.created_at).toDateString() === new Date().toDateString());
   const pendingOrders = orders.filter(o => o.status === 'pending');
-  const shippedOrders = orders.filter(o => o.status === 'shipped');
   const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
   const totalOrders = orders.length;
 
   const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
-
   const displayOrders = activeTab === 'overview' ? orders.slice(0, 10) : filteredOrders;
 
   const S = {
@@ -72,16 +70,16 @@ export default function AdminDashboard() {
           <div style={{display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap'}}>
             <a href="/admin/products" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Products</a>
             <a href="/admin/orders" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Orders</a>
-<a href="/admin/settings" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Settings</a>
+            <a href="/admin/customers" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Customers</a>
+            <a href="/admin/slider" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Slider</a>
             <a href="/admin/order-form" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Order Form</a>
-<a href="/admin/customers" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Customers</a>
+            <a href="/admin/settings" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Settings</a>
             <a href="/" target="_blank" style={{color: '#888', textDecoration: 'none', fontSize: 12}}>View Site</a>
             <button onClick={handleLogout} style={{background: '#DC2626', color: '#FFF', border: 'none', fontSize: 11, fontWeight: 700, padding: '7px 14px', cursor: 'pointer'}}>Logout</button>
           </div>
         </div>
 
         <div style={{maxWidth: 1500, margin: '0 auto', padding: '24px 24px'}}>
-          {/* Stats Row */}
           <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28}}>
             {[
               { label: 'Total Products', value: totalProducts, color: '#000' },
@@ -100,7 +98,6 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          {/* Low Stock Alert */}
           {lowStock.length > 0 && (
             <div style={{background: '#FFF7ED', border: '2px solid #EA580C', padding: 20, marginBottom: 24}}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8}}>
@@ -125,7 +122,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Out of Stock */}
           {outOfStock.length > 0 && (
             <div style={{background: '#FEF2F2', border: '2px solid #DC2626', padding: 20, marginBottom: 24}}>
               <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: 14, fontWeight: 900, margin: '0 0 10px', color: '#DC2626'}}>Out of Stock ({outOfStock.length})</h2>
@@ -135,7 +131,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Tabs & Orders */}
           <div style={{background: '#FFF', padding: 20, border: '1px solid #F0F0F0'}}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 20}}>
               <div style={{display: 'flex', gap: 0}}>
@@ -179,7 +174,6 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Quick Links */}
           <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginTop: 24}}>
             {[
               { label: 'Add Product', link: '/admin/products', desc: 'Add new inventory' },
