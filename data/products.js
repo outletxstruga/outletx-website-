@@ -1,54 +1,115 @@
 const products = [
   {
     "id": 1,
-    "brand": "Adidas ",
-    "name": "VL COURT",
-    "sku": "HQ0082",
+    "brand": "Adidas",
+    "name": "UltraRun 5 ",
+    "sku": "JQ0019",
     "category": "Shoes",
-    "subcategory": "Lifestyle",
+    "subcategory": "Running",
     "gender": "Men",
     "ageGroup": null,
-    "oldPrice": 3399,
+    "oldPrice": 4990,
     "newPrice": 2990,
-    "sizes": [
-      "40 41 42 43 44"
-    ],
-    "color": "black with white stripes",
+    "color": "Neon",
     "description": "",
     "images": [
-      "/images/products/1782416781735_championes-adidas-grand-court-base-3-0-hombre-hq0082-negro-blanco.jpg"
+      "/images/products/1782507220334_maratonki-adidas-ultrarun-5-tr-jq0019-2.jpg"
     ],
-    "stock": 14,
-    "discount": 12,
+    "sizes": [
+      {
+        "size": "42",
+        "stock": 3
+      },
+      {
+        "size": "43",
+        "stock": 2
+      },
+      {
+        "size": "44",
+        "stock": 2
+      }
+    ],
+    "discount": 40,
+    "inStock": true,
+    "featured": true
+  },
+  {
+    "id": 2,
+    "brand": "Adidas",
+    "name": "VL COURT BOLD",
+    "sku": " IH9152",
+    "category": "Shoes",
+    "subcategory": "Lifestyle",
+    "gender": "Women",
+    "ageGroup": null,
+    "oldPrice": 3990,
+    "newPrice": 2990,
+    "color": "Brown/Pink",
+    "description": "",
+    "images": [
+      "/images/products/1782508670275_669261.jpg"
+    ],
+    "sizes": [
+      {
+        "size": "35",
+        "stock": 2
+      },
+      {
+        "size": "36",
+        "stock": 2
+      },
+      {
+        "size": "37",
+        "stock": 3
+      },
+      {
+        "size": "38",
+        "stock": 3
+      },
+      {
+        "size": "39",
+        "stock": 2
+      }
+    ],
+    "discount": 25,
     "inStock": true,
     "featured": false
   },
   {
-    "id": 2,
-    "brand": "AIR JORDAN",
-    "name": "AIR JORDAN",
-    "sku": "DM0022-220",
+    "id": 3,
+    "brand": "ADIDAS",
+    "name": "VL COURT BOLD JR",
+    "sku": "IH4780",
     "category": "Shoes",
     "subcategory": "Lifestyle",
-    "gender": "Men",
+    "gender": "Women",
     "ageGroup": null,
-    "oldPrice": 12990,
-    "newPrice": 5990,
-    "sizes": [
-      "40",
-      "42",
-      "43",
-      "44",
-      "45",
-      "46"
-    ],
-    "color": "Red and Black",
+    "oldPrice": 3990,
+    "newPrice": 2990,
+    "color": "Red",
     "description": "",
     "images": [
-      "/images/products/1782429641123_760838_00.png.png"
+      "/images/products/1782508962810_buty-mlodziezowe-adidas-court-bold-bordowe-ih4780-skorzane-sportowe-36-b-iext187545553.jpg"
     ],
-    "stock": 6,
-    "discount": 54,
+    "sizes": [
+      {
+        "size": "38",
+        "stock": 2
+      },
+      {
+        "size": "39",
+        "stock": 3
+      },
+      {
+        "size": "37",
+        "stock": 2
+      },
+      {
+        "size": "36",
+        "stock": 3
+      }
+    ],
+    "discount": 25,
     "inStock": true,
     "featured": false
   }

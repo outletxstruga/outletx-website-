@@ -12,6 +12,7 @@ export default function ProductDetail() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedSize, setSelectedSize] = useState('');
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -40,6 +41,8 @@ export default function ProductDetail() {
     );
   }
 
+  const sizes = product.sizes || [];
+  const totalStock = sizes.reduce((sum, s) => sum + (s.stock || 0), 0);
   const relatedProducts = products.filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand)).slice(0, 4);
 
   return (
@@ -106,19 +109,39 @@ export default function ProductDetail() {
               </div>
               <p style={{color: '#16A34A', fontWeight: 700, fontSize: 12, marginBottom: 20}}>Save {product.oldPrice - product.newPrice} MKD</p>
 
-              {!product.inStock && (
+              {totalStock === 0 && (
                 <div style={{background: '#FEF2F2', border: '1px solid #FECACA', padding: '10px 14px', marginBottom: 20, color: '#DC2626', fontWeight: 600, fontSize: 13}}>Out of stock.</div>
               )}
 
               <div style={{marginBottom: 20}}>
-                <p style={{fontWeight: 700, fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', color: '#999', marginBottom: 8}}>Sizes</p>
+                <p style={{fontWeight: 700, fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', color: '#999', marginBottom: 8}}>Available Sizes</p>
                 <div style={{display: 'flex', flexWrap: 'wrap', gap: 6}}>
-                  {product.sizes.map((s, i) => <span key={i} style={{background: '#F5F5F5', color: '#000', fontSize: 12, fontWeight: 600, padding: '7px 14px'}}>{s}</span>)}
+                  {sizes.map((s, i) => (
+                    <button key={i} onClick={() => setSelectedSize(s.size)} style={{
+                      background: selectedSize === s.size ? '#000' : '#F5F5F5',
+                      color: selectedSize === s.size ? '#FFF' : (s.stock || 0) <= 2 ? '#DC2626' : '#000',
+                      border: selectedSize === s.size ? '1px solid #000' : '1px solid transparent',
+                      fontSize: 12, fontWeight: 600, padding: '7px 14px', cursor: (s.stock || 0) > 0 ? 'pointer' : 'not-allowed',
+                      opacity: (s.stock || 0) > 0 ? 1 : 0.4,
+                      fontFamily: 'Inter, sans-serif',
+                    }}>
+                      {s.size}
+                    </button>
+                  ))}
                 </div>
+                {selectedSize && (
+                  <p style={{fontSize: 11, color: '#999', marginTop: 6}}>
+                    Stock: {sizes.find(s => s.size === selectedSize)?.stock || 0} available
+                  </p>
+                )}
               </div>
 
               <div style={{display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 24}}>
-                <a href={`/checkout?id=${product.id}`} style={{background: '#DC2626', color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '14px 28px', display: 'inline-block'}}>Buy Now</a>
+                <a href={`/checkout?id=${product.id}&size=${selectedSize}`} style={{
+                  background: selectedSize ? '#DC2626' : '#CCC',
+                  color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '14px 28px', display: 'inline-block',
+                  pointerEvents: selectedSize ? 'auto' : 'none',
+                }}>Buy Now</a>
                 <a href="https://instagram.com/outletxstruga" target="_blank" rel="noopener noreferrer" style={{background: 'transparent', color: '#000', textDecoration: 'none', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '14px 28px', border: '1px solid #E5E5E5', display: 'inline-block'}}>Ask Question</a>
               </div>
 
@@ -147,23 +170,11 @@ export default function ProductDetail() {
             <h3 style={{fontFamily: 'Montserrat, sans-serif', fontSize: 20, fontWeight: 900, marginBottom: 10}}>OUTLET<span style={{color: '#DC2626'}}>X</span></h3>
             <p style={{color: '#666', fontSize: 12, lineHeight: 1.7}}>Branded sportswear at outlet prices. Dua Mall, Struga.</p>
           </div>
-          <div>
-            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Shop</p>
-            {['Men', 'Women', 'Kids', 'Shoes', 'Clothing'].map(i => <a key={i} href="/products" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{i}</a>)}
-          </div>
-          <div>
-            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Brands</p>
-            {['Nike', 'Adidas', 'Puma', 'Jordan', 'Kappa'].map(b => <a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{b}</a>)}
-          </div>
-          <div>
-            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Info</p>
-            <a href="/about" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>About</a>
-            <a href="/contact" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>Contact</a>
-          </div>
+          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Shop</p>{['Men', 'Women', 'Kids', 'Shoes', 'Clothing'].map(i => <a key={i} href="/products" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{i}</a>)}</div>
+          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Brands</p>{['Nike', 'Adidas', 'Puma', 'Jordan', 'Kappa'].map(b => <a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{b}</a>)}</div>
+          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Info</p><a href="/about" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>About</a><a href="/contact" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>Contact</a></div>
         </div>
-        <div style={{borderTop: '1px solid #1A1A1A', paddingTop: 16, textAlign: 'center', color: '#555', fontSize: 10}}>
-          &copy; 2024 OUTLETX. All rights reserved. Dua Mall, Struga, North Macedonia.
-        </div>
+        <div style={{borderTop: '1px solid #1A1A1A', paddingTop: 16, textAlign: 'center', color: '#555', fontSize: 10}}>&copy; 2024 OUTLETX. All rights reserved.</div>
       </footer>
     </>
   );
