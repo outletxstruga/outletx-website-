@@ -4,6 +4,7 @@ import ProductCard from '../components/ProductCard';
 import { useCart } from '../context/CartContext';
 import HeroSlider from '../components/HeroSlider';
 import RecentlyViewedHome from '../components/RecentlyViewedHome';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,6 +13,7 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { lang, toggleLang, t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -68,22 +70,19 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>OUTLETX | Branded Sportswear. Outlet Prices. | Dua Mall Struga</title>
-        <meta name="description" content="Authentic Nike, Adidas, Puma, Jordan, Kappa, Skechers, 4F at outlet prices. Dua Mall, Struga, North Macedonia." />
+        <title>OUTLETX | {t.hero.title} {t.hero.subtitle} | Dua Mall Struga</title>
+        <meta name="description" content={t.hero.desc} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
 
-      {/* ========== TOP BAR ========== */}
       <div style={{background: '#000000', color: '#FFFFFF', textAlign: 'center', fontSize: isMobile ? 9 : 10, fontWeight: 700, letterSpacing: isMobile ? 2 : 4, padding: '10px 16px', textTransform: 'uppercase'}}>
-        {isMobile ? 'FREE DELIVERY OVER 3000 MKD' : 'Dua Mall, Struga \u00a0\u2022\u00a0 Free Delivery Over 3000 MKD'}
+        {isMobile ? t.topBar.split('•')[1]?.trim() : t.topBar}
       </div>
 
-      {/* ========== HEADER ========== */}
       <header style={{
         background: '#FFFFFF', position: 'sticky', top: 0, zIndex: 100,
         borderBottom: scrolled ? '1px solid #E5E5E5' : '1px solid transparent',
-        boxShadow: scrolled ? '0 2px 40px rgba(0,0,0,0.04)' : 'none',
-        transition: 'all 0.3s',
+        boxShadow: scrolled ? '0 2px 40px rgba(0,0,0,0.04)' : 'none', transition: 'all 0.3s',
       }}>
         <div style={{maxWidth: 1600, margin: '0 auto', padding: isMobile ? '0 16px' : '0 40px', height: isMobile ? 60 : 72, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
           <a href="/" style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#000000', textDecoration: 'none', letterSpacing: -1.5, flexShrink: 0}}>
@@ -91,8 +90,8 @@ export default function Home() {
           </a>
           {!isMobile && (
             <nav style={{display: 'flex', gap: 48, alignItems: 'center'}}>
-              {['Men', 'Women', 'Kids', 'Sale'].map((item) => (
-                <a key={item} href={item === 'Sale' ? '/products?sort=discount' : `/products?gender=${item.toLowerCase()}`} style={{
+              {[t.nav.men, t.nav.women, t.nav.kids, t.nav.sale].map((item) => (
+                <a key={item} href={item === t.nav.sale ? '/products?sort=discount' : `/products?gender=${item.toLowerCase()}`} style={{
                   color: '#000000', textDecoration: 'none', fontSize: 13, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase', transition: 'color 0.2s',
                 }}
                 onMouseEnter={(e) => e.target.style.color = '#DC2626'}
@@ -108,13 +107,14 @@ export default function Home() {
               }}
               onMouseEnter={(e) => { e.target.style.background = '#B91C1C'; }}
               onMouseLeave={(e) => { e.target.style.background = '#DC2626'; }}
-              >Message Us</a>
+              >{t.messageUs}</a>
             )}
+          <button onClick={toggleLang} style={{background: '#000', color: '#FFF', border: 'none', cursor: 'pointer', padding: '8px 14px', fontSize: 11, fontWeight: 700, fontFamily: 'Inter, sans-serif', borderRadius: 2, letterSpacing: 1}}>
+  {lang === 'mk' ? 'EN' : 'МК'}
+</button>
             <button onClick={() => setCartOpen(!cartOpen)} style={{background: 'none', border: 'none', cursor: 'pointer', position: 'relative', padding: 8}}>
               <svg width={isMobile ? 20 : 22} height={isMobile ? 20 : 22} fill="none" stroke="#000000" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
-              {cartCount > 0 && (
-                <span style={{position: 'absolute', top: -2, right: -4, background: '#DC2626', color: '#FFFFFF', fontSize: 10, fontWeight: 700, width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{cartCount}</span>
-              )}
+              {cartCount > 0 && <span style={{position: 'absolute', top: -2, right: -4, background: '#DC2626', color: '#FFFFFF', fontSize: 10, fontWeight: 700, width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{cartCount}</span>}
             </button>
             <button onClick={() => setMenuOpen(!menuOpen)} style={{background: 'none', border: 'none', cursor: 'pointer', padding: 8}}>
               <svg width={isMobile ? 20 : 22} height={isMobile ? 20 : 22} fill="none" stroke="#000000" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
@@ -123,56 +123,40 @@ export default function Home() {
         </div>
         {menuOpen && (
           <div style={{background: '#FFFFFF', borderTop: '1px solid #F0F0F0', padding: isMobile ? '8px 16px' : '12px 40px'}}>
-            {['Men', 'Women', 'Kids', 'Sale', 'Contact'].map((item) => (
-              <a key={item} href={item === 'Sale' ? '/products?sort=discount' : item === 'Contact' ? '/contact' : `/products?gender=${item.toLowerCase()}`} style={{display: 'block', padding: '14px 0', color: '#000000', textDecoration: 'none', fontSize: 15, fontWeight: 600, borderBottom: '1px solid #F5F5F5'}}>{item}</a>
+            {[t.nav.men, t.nav.women, t.nav.kids, t.nav.sale, t.nav.contact].map((item) => (
+              <a key={item} href={item === t.nav.sale ? '/products?sort=discount' : item === t.nav.contact ? '/contact' : `/products?gender=${item.toLowerCase()}`} style={{display: 'block', padding: '14px 0', color: '#000000', textDecoration: 'none', fontSize: 15, fontWeight: 600, borderBottom: '1px solid #F5F5F5'}}>{item}</a>
             ))}
           </div>
         )}
       </header>
 
-      {/* ========== HERO ========== */}
       <HeroSlider />
 
-      {/* ========== BRANDS ========== */}
+      {/* Brands */}
       <section style={{padding: isMobile ? '32px 16px' : '50px 40px', background: '#FFFFFF', borderBottom: '1px solid #F0F0F0'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
-          <div style={{
-            display: 'flex', justifyContent: 'center', alignItems: 'center', gap: isMobile ? 28 : 64, flexWrap: 'wrap', padding: '8px 0',
-          }}>
-            {[
-              { name: 'NIKE', w: 100, fs: 24 },
-              { name: 'ADIDAS', w: 110, fs: 22 },
-              { name: 'PUMA', w: 90, fs: 22 },
-              { name: 'JORDAN', w: 115, fs: 22 },
-              { name: 'KAPPA', w: 100, fs: 22 },
-              { name: 'SKECHERS', w: 125, fs: 18 },
-              { name: '4F', w: 55, fs: 28 },
-            ].map((b) => (
-              <a key={b.name} href={`/products?brand=${b.name.toLowerCase()}`} style={{
-                flexShrink: 0, textDecoration: 'none', transition: 'all 0.3s', opacity: 0.5,
-              }}
+          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: isMobile ? 28 : 64, flexWrap: 'wrap', padding: '8px 0'}}>
+            {[{ name: 'NIKE', w: 100, fs: 24 }, { name: 'ADIDAS', w: 110, fs: 22 }, { name: 'PUMA', w: 90, fs: 22 }, { name: 'JORDAN', w: 115, fs: 22 }, { name: 'KAPPA', w: 100, fs: 22 }, { name: 'SKECHERS', w: 125, fs: 18 }, { name: '4F', w: 55, fs: 28 }].map((b) => (
+              <a key={b.name} href={`/products?brand=${b.name.toLowerCase()}`} style={{flexShrink: 0, textDecoration: 'none', transition: 'all 0.3s', opacity: 0.5}}
               onMouseEnter={(e) => { e.target.style.opacity = '1'; }}
-              onMouseLeave={(e) => { e.target.style.opacity = '0.5'; }}
-              >
-                <svg viewBox={`0 0 ${b.w * 2} 60`} width={b.w} height="30">
-                  <text x="50%" y="42" textAnchor="middle" fontFamily="Montserrat" fontWeight="900" fontSize={b.fs} fill="#000000" letterSpacing={b.name === '4F' ? 0 : 4}>{b.name}</text>
-                </svg>
+              onMouseLeave={(e) => { e.target.style.opacity = '0.5'; }}>
+                <svg viewBox={`0 0 ${b.w * 2} 60`} width={b.w} height="30"><text x="50%" y="42" textAnchor="middle" fontFamily="Montserrat" fontWeight="900" fontSize={b.fs} fill="#000000" letterSpacing={b.name === '4F' ? 0 : 4}>{b.name}</text></svg>
               </a>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ========== CATEGORIES ========== */}
+      {/* Categories */}
       <section style={{background: '#FFFFFF', borderBottom: '1px solid #F0F0F0'}}>
         <div style={{maxWidth: 1600, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(6, 1fr)'}}>
           {[
-            { name: 'Shoes', link: '/products?category=shoes' },
-            { name: 'Clothing', link: '/products?category=clothing' },
-            { name: 'Accessories', link: '/products?category=accessories' },
-            { name: 'Men', link: '/products?gender=men' },
-            { name: 'Women', link: '/products?gender=women' },
-            { name: 'Kids', link: '/products?gender=kids' },
+            { name: t.categories.shoes, link: '/products?category=shoes' },
+            { name: t.categories.clothing, link: '/products?category=clothing' },
+            { name: t.categories.accessories, link: '/products?category=accessories' },
+            { name: t.categories.men, link: '/products?gender=men' },
+            { name: t.categories.women, link: '/products?gender=women' },
+            { name: t.categories.kids, link: '/products?gender=kids' },
           ].map((cat, i) => (
             <a key={cat.name} href={cat.link} style={{textAlign: 'center', padding: isMobile ? '18px 8px' : '26px 16px', textDecoration: 'none', color: '#000000', fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderRight: i < (isMobile ? 2 : 5) ? '1px solid #F0F0F0' : 'none', borderBottom: isMobile && i < 3 ? '1px solid #F0F0F0' : 'none', transition: 'all 0.2s'}}
             onMouseEnter={(e) => { e.target.style.background = '#000000'; e.target.style.color = '#FFFFFF'; }}
@@ -182,135 +166,122 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ========== BEST SELLERS ========== */}
+      {/* Best Sellers */}
       <section style={{padding, background: '#FFFFFF'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
           <div style={{marginBottom: isMobile ? 28 : 48, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
             <div>
-              <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>Most Popular</p>
-              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>Best Sellers</h2>
+              <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>{t.sections.mostPopular}</p>
+              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>{t.sections.bestSellers}</h2>
             </div>
-            <a href="/products" style={{color: '#000000', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderBottom: '2px solid #000000', paddingBottom: 6, transition: 'all 0.2s', flexShrink: 0}}
-            onMouseEnter={(e) => { e.target.style.color = '#DC2626'; e.target.style.borderColor = '#DC2626'; }}
-            onMouseLeave={(e) => { e.target.style.color = '#000000'; e.target.style.borderColor = '#000000'; }}
-            >View All</a>
+            <a href="/products" style={{color: '#000000', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderBottom: '2px solid #000000', paddingBottom: 6, transition: 'all 0.2s', flexShrink: 0}}>{t.sections.viewAll}</a>
           </div>
           <div style={{display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(270px, 1fr))', gap}}>
-            {bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {bestSellers.map((product) => <ProductCard key={product.id} product={product} />)}
           </div>
         </div>
       </section>
 
-      {/* ========== SALE BANNER ========== */}
+      {/* Sale Banner */}
       <section style={{background: '#DC2626', padding: bannerPadding, textAlign: 'center', position: 'relative', overflow: 'hidden'}}>
         <div style={{position: 'absolute', top: '-50%', right: '-15%', width: isMobile ? 300 : 600, height: isMobile ? 300 : 600, background: 'rgba(0,0,0,0.06)', borderRadius: '50%'}} />
         <div style={{position: 'absolute', bottom: '-40%', left: '-10%', width: isMobile ? 200 : 400, height: isMobile ? 200 : 400, background: 'rgba(0,0,0,0.04)', borderRadius: '50%'}} />
         <div style={{position: 'relative', zIndex: 1}}>
-          <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginBottom: 6}}>Limited Time</p>
-          <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: saleTitle, fontWeight: 900, letterSpacing: -3, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 16, lineHeight: 0.9}}>UP TO 70% OFF</h2>
-          <a href="/products?sort=discount" style={{background: '#000000', color: '#FFFFFF', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', padding: isMobile ? '14px 28px' : '16px 40px', display: 'inline-block', transition: 'all 0.2s'}}
-          onMouseEnter={(e) => { e.target.style.background = '#1A1A1A'; e.target.style.transform = 'translateY(-2px)'; }}
-          onMouseLeave={(e) => { e.target.style.background = '#000000'; e.target.style.transform = 'translateY(0)'; }}
-          >Shop Sale</a>
+          <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginBottom: 6}}>{t.sections.limitedTime}</p>
+          <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: saleTitle, fontWeight: 900, letterSpacing: -3, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: 16, lineHeight: 0.9}}>{t.sections.upTo70}</h2>
+          <a href="/products?sort=discount" style={{background: '#000000', color: '#FFFFFF', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', padding: isMobile ? '14px 28px' : '16px 40px', display: 'inline-block', transition: 'all 0.2s'}}>{t.sections.shopSale}</a>
         </div>
       </section>
 
-      {/* ========== SALE PRODUCTS ========== */}
+      {/* Sale Products */}
       <section style={{padding, background: '#F9F9F9'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
           <div style={{marginBottom: isMobile ? 28 : 48, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
             <div>
-              <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>Deals</p>
-              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>Biggest Discounts</h2>
+              <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>{t.sections.deals}</p>
+              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>{t.sections.biggestDiscounts}</h2>
             </div>
-            <a href="/products?sort=discount" style={{color: '#000000', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderBottom: '2px solid #000000', paddingBottom: 6, flexShrink: 0}}>View All</a>
+            <a href="/products?sort=discount" style={{color: '#000000', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderBottom: '2px solid #000000', paddingBottom: 6, flexShrink: 0}}>{t.sections.viewAll}</a>
           </div>
           <div style={{display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(270px, 1fr))', gap}}>
-            {saleProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {saleProducts.map((product) => <ProductCard key={product.id} product={product} />)}
           </div>
         </div>
       </section>
 
-      {/* ========== GENDER ========== */}
+      {/* Gender */}
       <section style={{padding, background: '#FFFFFF'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
           <div style={{marginBottom: isMobile ? 28 : 48}}>
-            <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>Shop By</p>
-            <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>Gender</h2>
+            <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>{t.sections.shopBy}</p>
+            <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>{t.sections.gender}</h2>
           </div>
           <div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobile ? 10 : 20}}>
             {[
-              { name: 'Men', link: '/products?gender=men', bg: '#0A0A0A' },
-              { name: 'Women', link: '/products?gender=women', bg: '#111111' },
-              { name: 'Kids', link: '/products?gender=kids', bg: '#0D0D0D' },
+              { name: t.categories.men, link: '/products?gender=men', bg: '#0A0A0A' },
+              { name: t.categories.women, link: '/products?gender=women', bg: '#111111' },
+              { name: t.categories.kids, link: '/products?gender=kids', bg: '#0D0D0D' },
             ].map((item) => (
               <a key={item.name} href={item.link} style={{background: item.bg, color: '#FFFFFF', textDecoration: 'none', padding: genderPadding, textAlign: 'center', display: 'block', transition: 'all 0.4s', borderRadius: 2}}
               onMouseEnter={(e) => { e.target.style.background = '#DC2626'; }}
-              onMouseLeave={(e) => { e.target.style.background = item.bg; }}
-              >
+              onMouseLeave={(e) => { e.target.style.background = item.bg; }}>
                 <span style={{fontFamily: 'Montserrat, sans-serif', fontSize: genderTitle, fontWeight: 900, letterSpacing: -2, display: 'block', marginBottom: 10}}>{item.name}</span>
-                <span style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', borderBottom: '2px solid rgba(255,255,255,0.4)', paddingBottom: 8}}>Shop Now</span>
+                <span style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', borderBottom: '2px solid rgba(255,255,255,0.4)', paddingBottom: 8}}>{t.sections.viewAll}</span>
               </a>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ========== NEW ARRIVALS ========== */}
+      {/* New Arrivals */}
       <section style={{padding, background: '#F9F9F9'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
           <div style={{marginBottom: isMobile ? 28 : 48, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
             <div>
-              <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>Fresh In</p>
-              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>New Arrivals</h2>
+              <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>{t.sections.freshIn}</p>
+              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, textTransform: 'uppercase', margin: 0, lineHeight: 0.9}}>{t.sections.newArrivals}</h2>
             </div>
-            <a href="/products" style={{color: '#000000', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderBottom: '2px solid #000000', paddingBottom: 6, flexShrink: 0}}>View All</a>
+            <a href="/products" style={{color: '#000000', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', borderBottom: '2px solid #000000', paddingBottom: 6, flexShrink: 0}}>{t.sections.viewAll}</a>
           </div>
           <div style={{display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(270px, 1fr))', gap}}>
-            {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {newArrivals.map((product) => <ProductCard key={product.id} product={product} />)}
           </div>
         </div>
       </section>
 
-      {/* ========== NEWSLETTER ========== */}
+      {/* Newsletter */}
       <section style={{padding: isMobile ? '50px 16px' : '80px 40px', background: '#0A0A0A', color: '#FFFFFF', textAlign: 'center'}}>
         <div style={{maxWidth: 550, margin: '0 auto'}}>
-          <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 10}}>Stay Updated</p>
-          <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 26 : 36, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase', marginBottom: 10}}>Get Exclusive Deals</h2>
+          <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 10}}>{t.sections.stayUpdated}</p>
+          <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 26 : 36, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase', marginBottom: 10}}>{t.sections.exclusiveDeals}</h2>
           <p style={{color: '#888888', fontSize: 13, marginBottom: 24}}>Be the first to know about new arrivals and special offers.</p>
           {subscribed ? (
-            <p style={{color: '#16A34A', fontWeight: 700, fontSize: 15}}>Thank you for subscribing.</p>
+            <p style={{color: '#16A34A', fontWeight: 700, fontSize: 15}}>{t.sections.thankYou}</p>
           ) : (
             <form onSubmit={handleSubscribe} style={{display: 'flex', gap: 8, maxWidth: 450, margin: '0 auto', flexDirection: isMobile ? 'column' : 'row'}}>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email address" style={{flex: 1, padding: '14px 16px', border: '1px solid #333', background: '#111', color: '#FFF', fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box'}} />
-              <button type="submit" style={{background: '#DC2626', color: '#FFFFFF', border: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', padding: '14px 24px', cursor: 'pointer', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap'}}>Subscribe</button>
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.sections.emailPlaceholder} style={{flex: 1, padding: '14px 16px', border: '1px solid #333', background: '#111', color: '#FFF', fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box'}} />
+              <button type="submit" style={{background: '#DC2626', color: '#FFFFFF', border: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', padding: '14px 24px', cursor: 'pointer', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap'}}>{t.sections.subscribe}</button>
             </form>
           )}
         </div>
       </section>
 
-      {/* ========== STORE ========== */}
+      {/* Store */}
       <section style={{padding, background: '#FFFFFF'}}>
         <div style={{maxWidth: 1600, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(340px, 1fr))', gap: isMobile ? 32 : 60, alignItems: 'center'}}>
           <div>
-            <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 8}}>Visit Us</p>
-            <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, marginBottom: isMobile ? 20 : 28, textTransform: 'uppercase', lineHeight: 0.9}}>Dua Mall, Struga</h2>
+            <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', marginBottom: 8}}>{t.sections.visitUs}</p>
+            <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: sectionTitle, fontWeight: 900, letterSpacing: -2, marginBottom: isMobile ? 20 : 28, textTransform: 'uppercase', lineHeight: 0.9}}>{t.sections.storeInfo}</h2>
             <div style={{fontSize: 14, color: '#555555', lineHeight: 2.4}}>
-              <p style={{margin: 0}}>North Macedonia</p>
+              <p style={{margin: 0}}>{t.sections.northMacedonia}</p>
               <p style={{fontWeight: 700, color: '#000000', margin: '2px 0', fontSize: 16}}>+389 70 123 456</p>
-              <p style={{margin: 0}}>Mon &mdash; Fri: 09:00 &mdash; 21:00</p>
-              <p style={{margin: 0}}>Saturday: 09:00 &mdash; 22:00</p>
-              <p style={{margin: 0}}>Sunday: 10:00 &mdash; 20:00</p>
+              <p style={{margin: 0}}>{t.sections.hours.monFri}</p>
+              <p style={{margin: 0}}>{t.sections.hours.sat}</p>
+              <p style={{margin: 0}}>{t.sections.hours.sun}</p>
             </div>
             <div style={{display: 'flex', gap: 10, marginTop: 24, flexWrap: 'wrap'}}>
-              <a href="https://instagram.com/outletxstruga" target="_blank" rel="noopener noreferrer" style={{background: '#DC2626', color: '#FFFFFF', textDecoration: 'none', fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', padding: '12px 24px', display: 'inline-block', transition: 'all 0.2s'}}>Instagram</a>
-              <a href="/contact" style={{background: 'transparent', color: '#000000', textDecoration: 'none', fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', padding: '12px 24px', border: '1px solid #CCCCCC', display: 'inline-block', transition: 'all 0.2s'}}>Directions</a>
+              <a href="https://instagram.com/outletxstruga" target="_blank" rel="noopener noreferrer" style={{background: '#DC2626', color: '#FFFFFF', textDecoration: 'none', fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', padding: '12px 24px', display: 'inline-block', transition: 'all 0.2s'}}>{t.sections.instagram}</a>
+              <a href="/contact" style={{background: 'transparent', color: '#000000', textDecoration: 'none', fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', padding: '12px 24px', border: '1px solid #CCCCCC', display: 'inline-block', transition: 'all 0.2s'}}>{t.sections.directions}</a>
             </div>
           </div>
           <div style={{height: isMobile ? 220 : 320, borderRadius: 4, overflow: 'hidden'}}>
@@ -319,10 +290,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ========== RECENTLY VIEWED ========== */}
       <RecentlyViewedHome />
 
-      {/* ========== FOOTER ========== */}
+      {/* Footer */}
       <footer style={{background: '#0A0A0A', color: '#FFFFFF', padding: isMobile ? '50px 16px 24px' : '70px 40px 28px'}}>
         <div style={{maxWidth: 1600, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : '2fr 1fr 1fr 1fr 1fr', gap: isMobile ? 24 : 40, marginBottom: isMobile ? 32 : 48}}>
           <div style={isMobile ? {gridColumn: 'span 2'} : {}}>
@@ -330,29 +300,28 @@ export default function Home() {
             <p style={{color: '#666666', fontSize: 12, lineHeight: 1.7, maxWidth: 260}}>Branded sportswear at outlet prices. Dua Mall, Struga, North Macedonia.</p>
           </div>
           <div>
-            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Shop</p>
-            {['Men', 'Women', 'Kids', 'Shoes', 'Clothing', 'Sale'].map((item) => (
+            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>{t.footer.shop}</p>
+            {[t.nav.men, t.nav.women, t.nav.kids, t.categories.shoes, t.categories.clothing, t.nav.sale].map((item) => (
               <a key={item} href="/products" style={{display: 'block', color: '#888888', fontSize: 12, textDecoration: 'none', padding: '3px 0', transition: 'color 0.2s'}}
               onMouseEnter={(e) => e.target.style.color = '#FFFFFF'}
-              onMouseLeave={(e) => e.target.style.color = '#888888'}
-              >{item}</a>
+              onMouseLeave={(e) => e.target.style.color = '#888888'}>{item}</a>
             ))}
           </div>
           <div>
-            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Brands</p>
+            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>{t.footer.brands}</p>
             {['Nike', 'Adidas', 'Puma', 'Jordan', 'Kappa', 'Skechers'].map((b) => (
               <a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{display: 'block', color: '#888888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{b}</a>
             ))}
           </div>
           <div>
-            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Help</p>
-            {['About', 'Contact', 'Shipping', 'Returns'].map((item) => (
-              <a key={item} href={item === 'About' ? '/about' : '/contact'} style={{display: 'block', color: '#888888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{item}</a>
+            <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>{t.footer.help}</p>
+            {[t.footer.about, t.footer.contact, t.footer.shipping, t.footer.returns].map((item) => (
+              <a key={item} href={item === t.footer.about ? '/about' : '/contact'} style={{display: 'block', color: '#888888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{item}</a>
             ))}
           </div>
           {!isMobile && (
             <div>
-              <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Contact</p>
+              <p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>{t.footer.contact}</p>
               <p style={{color: '#888', fontSize: 12, margin: '0 0 6px'}}>Dua Mall, Struga</p>
               <p style={{color: '#888', fontSize: 12, margin: '0 0 6px'}}>North Macedonia</p>
               <p style={{color: '#FFF', fontSize: 12, fontWeight: 700, margin: '0 0 6px'}}>+389 70 123 456</p>
@@ -361,7 +330,7 @@ export default function Home() {
           )}
         </div>
         <div style={{borderTop: '1px solid #1A1A1A', paddingTop: 20, textAlign: 'center', color: '#555555', fontSize: 10, letterSpacing: 1}}>
-          &copy; 2024 OUTLETX. All rights reserved. Dua Mall, Struga, North Macedonia.
+          &copy; 2024 OUTLETX. {t.footer.rights} Dua Mall, Struga, North Macedonia.
         </div>
       </footer>
     </>

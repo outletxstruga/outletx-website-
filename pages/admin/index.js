@@ -72,6 +72,7 @@ export default function AdminDashboard() {
             <a href="/admin/orders" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Orders</a>
             <a href="/admin/customers" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Customers</a>
             <a href="/admin/slider" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Slider</a>
+<a href="/admin/analytics" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Analytics</a>
             <a href="/admin/order-form" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Order Form</a>
             <a href="/admin/settings" style={{color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 600}}>Settings</a>
             <a href="/" target="_blank" style={{color: '#888', textDecoration: 'none', fontSize: 12}}>View Site</a>
