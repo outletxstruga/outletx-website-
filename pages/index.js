@@ -23,12 +23,13 @@ export default function Home() {
     return () => { window.removeEventListener('scroll', handleScroll); window.removeEventListener('resize', handleResize); };
   }, []);
 
-  const bestSellers = products.filter(p => p.featured && p.inStock).slice(0, 6);
-  const saleProducts = products.filter(p => p.discount >= 40 && p.inStock).sort((a, b) => b.discount - a.discount).slice(0, 6);
-  const newArrivals = products.filter(p => p.inStock).slice(-6).reverse();
+  const bestSellers = products.filter(p => p.featured && p.inStock).slice(0, 8);
+  const saleProducts = products.filter(p => p.discount >= 40 && p.inStock).sort((a, b) => b.discount - a.discount).slice(0, 8);
+  const newArrivals = products.filter(p => p.inStock).slice(-8).reverse();
 
-  const GAP = isMobile ? 8 : 16;
-  const PAD = isMobile ? '48px 14px' : '72px 36px';
+  const M = isMobile;
+  const P = M ? '48px 14px' : '80px 36px';
+  const T = M ? 22 : 28;
 
   return (
     <>
@@ -38,119 +39,117 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
 
-      {/* TOP BAR */}
-      <div style={{background: '#000', color: '#FFF', textAlign: 'center', fontSize: 10, fontWeight: 700, letterSpacing: 3, padding: '8px 14px', textTransform: 'uppercase'}}>
-        {isMobile ? 'FREE DELIVERY 3000+ MKD' : 'Dua Mall, Struga — Open Every Day — Free Delivery Over 3000 MKD'}
+      <div style={{background: '#000', color: '#FFF', textAlign: 'center', fontSize: 9, fontWeight: 600, letterSpacing: 4, padding: '8px 14px', textTransform: 'uppercase'}}>
+        Dua Mall, Struga &nbsp;—&nbsp; Open Every Day &nbsp;—&nbsp; Free Delivery Over 3000 MKD
       </div>
 
-      {/* HEADER */}
-      <header style={{background: '#FFF', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #EEE'}}>
-        <div style={{maxWidth: 1600, margin: '0 auto', padding: isMobile ? '0 14px' : '0 36px', height: isMobile ? 56 : 68, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <a href="/" style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#000', textDecoration: 'none', letterSpacing: -1.5}}>OUTLET<span style={{color: '#DC2626'}}>X</span></a>
-          {!isMobile && <nav style={{display: 'flex', gap: 44}}>{['MEN', 'WOMEN', 'KIDS', 'SALE'].map(item => <a key={item} href={item === 'SALE' ? '/products?sort=discount' : `/products?gender=${item.toLowerCase()}`} style={{color: '#000', textDecoration: 'none', fontSize: 13, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase'}}>{item}</a>)}</nav>}
-          <div style={{display: 'flex', gap: isMobile ? 6 : 14, alignItems: 'center'}}>
-            <button onClick={toggleLang} style={{background: '#000', color: '#FFF', border: 'none', padding: '6px 10px', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter, sans-serif'}}>{lang === 'mk' ? 'MK' : lang === 'sq' ? 'SQ' : 'EN'}</button>
-            <button onClick={() => setCartOpen(!cartOpen)} style={{background: 'none', border: 'none', cursor: 'pointer', position: 'relative', padding: 6}}>
-              <svg width={20} height={20} fill="none" stroke="#000" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
-              {cartCount > 0 && <span style={{position: 'absolute', top: -3, right: -5, background: '#DC2626', color: '#FFF', fontSize: 9, fontWeight: 700, width: 16, height: 16, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{cartCount}</span>}
+      <header style={{background: '#FFF', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #E5E5E5'}}>
+        <div style={{maxWidth: 1400, margin: '0 auto', padding: M ? '0 16px' : '0 36px', height: M ? 54 : 64, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <a href="/" style={{fontFamily: 'Montserrat, sans-serif', fontSize: M ? 20 : 24, fontWeight: 900, color: '#000', textDecoration: 'none', letterSpacing: -1}}>OUTLET<span style={{color: '#DC2626'}}>X</span></a>
+          {!M && <nav style={{display: 'flex', gap: 40}}>{['MEN', 'WOMEN', 'KIDS', 'SALE'].map(i => <a key={i} href={i==='SALE'?'/products?sort=discount':`/products?gender=${i.toLowerCase()}`} style={{color:'#000',textDecoration:'none',fontSize:12,fontWeight:600,letterSpacing:2,textTransform:'uppercase'}}>{i}</a>)}</nav>}
+          <div style={{display:'flex',gap:12,alignItems:'center'}}>
+            <button onClick={toggleLang} style={{background:'none',border:'1px solid #E5E5E5',color:'#000',padding:'5px 10px',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'Inter, sans-serif'}}>{lang==='mk'?'MK':lang==='sq'?'SQ':'EN'}</button>
+            <button onClick={()=>setCartOpen(!cartOpen)} style={{background:'none',border:'none',cursor:'pointer',position:'relative',padding:4}}>
+              <svg width={18} height={18} fill="none" stroke="#000" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+              {cartCount>0&&<span style={{position:'absolute',top:-4,right:-6,background:'#DC2626',color:'#FFF',fontSize:8,fontWeight:700,width:14,height:14,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center'}}>{cartCount}</span>}
             </button>
-            <button onClick={() => setMenuOpen(!menuOpen)} style={{background: 'none', border: 'none', cursor: 'pointer', padding: 6}}>
-              <svg width={20} height={20} fill="none" stroke="#000" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            <button onClick={()=>setMenuOpen(!menuOpen)} style={{background:'none',border:'none',cursor:'pointer',padding:4}}>
+              <svg width={18} height={18} fill="none" stroke="#000" strokeWidth="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
             </button>
           </div>
         </div>
-        {menuOpen && <div style={{background: '#FFF', borderTop: '1px solid #EEE', padding: '10px 14px'}}>{['MEN','WOMEN','KIDS','SALE','CONTACT'].map(item => <a key={item} href={item==='SALE'?'/products?sort=discount':item==='CONTACT'?'/contact':`/products?gender=${item.toLowerCase()}`} style={{display:'block',padding:'13px 0',color:'#000',textDecoration:'none',fontSize:14,fontWeight:600,borderBottom:'1px solid #F5F5F5'}}>{item}</a>)}</div>}
+        {menuOpen&&<div style={{background:'#FFF',borderTop:'1px solid #EEE',padding:'10px 16px'}}>{['MEN','WOMEN','KIDS','SALE','CONTACT'].map(i=><a key={i} href={i==='SALE'?'/products?sort=discount':i==='CONTACT'?'/contact':`/products?gender=${i.toLowerCase()}`} style={{display:'block',padding:'12px 0',color:'#000',textDecoration:'none',fontSize:13,fontWeight:600,borderBottom:'1px solid #F5F5F5'}}>{i}</a>)}</div>}
       </header>
 
-      {/* HERO */}
       <HeroSlider />
 
-      {/* CATEGORY STRIP */}
-      <section style={{background:'#FFF',borderBottom:'1px solid #EEE'}}>
-        <div style={{maxWidth:1600,margin:'0 auto',display:'grid',gridTemplateColumns:isMobile?'repeat(3,1fr)':'repeat(6,1fr)'}}>
+      <section style={{borderBottom:'1px solid #E5E5E5'}}>
+        <div style={{maxWidth:1400,margin:'0 auto',display:'grid',gridTemplateColumns:M?'repeat(3,1fr)':'repeat(6,1fr)'}}>
           {['SHOES','CLOTHING','ACCESSORIES','MEN','WOMEN','KIDS'].map((c,i)=>(
-            <a key={c} href={`/products?${c==='SHOES'?'category=shoes':c==='CLOTHING'?'category=clothing':c==='ACCESSORIES'?'category=accessories':`gender=${c.toLowerCase()}`}`} style={{textAlign:'center',padding:isMobile?'14px 4px':'20px 12px',textDecoration:'none',color:'#000',fontSize:isMobile?9:11,fontWeight:700,letterSpacing:2,textTransform:'uppercase',borderRight:i<(isMobile?2:5)?'1px solid #EEE':'none',transition:'all 0.2s'}}
-            onMouseEnter={e=>{e.target.style.background='#000';e.target.style.color='#FFF'}} onMouseLeave={e=>{e.target.style.background='#FFF';e.target.style.color='#000'}}>{c}</a>
+            <a key={c} href={`/products?${c==='SHOES'?'category=shoes':c==='CLOTHING'?'category=clothing':c==='ACCESSORIES'?'category=accessories':`gender=${c.toLowerCase()}`}`} style={{textAlign:'center',padding:M?'14px 4px':'18px 12px',textDecoration:'none',color:'#555',fontSize:M?9:11,fontWeight:600,letterSpacing:2,textTransform:'uppercase',borderRight:i<(M?2:5)?'1px solid #F0F0F0':'none',transition:'all 0.2s'}}
+            onMouseEnter={e=>{e.target.style.color='#000';e.target.style.background='#FAFAFA'}} onMouseLeave={e=>{e.target.style.color='#555';e.target.style.background='#FFF'}}>{c}</a>
           ))}
         </div>
       </section>
 
-      {/* BEST SELLERS */}
-      <section style={{padding:PAD,background:'#FFF'}}>
-        <div style={{maxWidth:1600,margin:'0 auto'}}>
-          <div style={{marginBottom:isMobile?28:44,display:'flex',justifyContent:'space-between',alignItems:'baseline'}}>
-            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:isMobile?24:36,fontWeight:900,letterSpacing:-1.5,textTransform:'uppercase',margin:0}}>BEST SELLERS</h2>
-            <a href="/products" style={{color:'#000',textDecoration:'none',fontSize:11,fontWeight:700,letterSpacing:2,textTransform:'uppercase',borderBottom:'2px solid #000',paddingBottom:4}}>VIEW ALL</a>
+      <section style={{padding:P}}>
+        <div style={{maxWidth:1400,margin:'0 auto'}}>
+          <div style={{marginBottom:M?32:48}}>
+            <p style={{fontSize:10,fontWeight:700,letterSpacing:4,textTransform:'uppercase',color:'#999',margin:'0 0 8px'}}>Most Popular</p>
+            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:T,fontWeight:900,letterSpacing:-1,textTransform:'uppercase',margin:0}}>Best Sellers</h2>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(auto-fill, minmax(240px, 1fr))',gap:GAP}}>
+          <div style={{display:'grid',gridTemplateColumns:M?'repeat(2,1fr)':'repeat(4,1fr)',gap:M?10:16}}>
             {bestSellers.map(p=><ProductCard key={p.id} product={p}/>)}
+          </div>
+          <div style={{textAlign:'center',marginTop:M?28:40}}>
+            <a href="/products" style={{display:'inline-block',background:'transparent',color:'#000',textDecoration:'none',fontSize:11,fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'12px 32px',border:'1px solid #000',transition:'all 0.2s'}}
+            onMouseEnter={e=>{e.target.style.background='#000';e.target.style.color='#FFF'}} onMouseLeave={e=>{e.target.style.background='transparent';e.target.style.color='#000'}}>View All Products</a>
           </div>
         </div>
       </section>
 
-      {/* SALE BANNER */}
-      <section style={{background:'#DC2626',padding:isMobile?'40px 14px':'56px 36px',textAlign:'center'}}>
-        <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:isMobile?28:42,fontWeight:900,letterSpacing:-2,textTransform:'uppercase',color:'#FFF',margin:'0 0 12px',lineHeight:0.95}}>UP TO 70% OFF</h2>
-        <a href="/products?sort=discount" style={{display:'inline-block',background:'#000',color:'#FFF',textDecoration:'none',fontSize:12,fontWeight:700,letterSpacing:3,textTransform:'uppercase',padding:'14px 36px',transition:'all 0.2s'}}
-        onMouseEnter={e=>{e.target.style.background='#1A1A1A';e.target.style.transform='translateY(-1px)'}} onMouseLeave={e=>{e.target.style.background='#000';e.target.style.transform='translateY(0)'}}>SHOP SALE</a>
+      <section style={{background:'#DC2626',padding:M?'48px 14px':'64px 36px',textAlign:'center'}}>
+        <p style={{fontSize:9,fontWeight:700,letterSpacing:5,textTransform:'uppercase',color:'rgba(255,255,255,0.7)',margin:'0 0 8px'}}>Limited Time</p>
+        <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:M?30:42,fontWeight:900,letterSpacing:-2,textTransform:'uppercase',color:'#FFF',margin:'0 0 20px',lineHeight:0.95}}>Up To 70% Off</h2>
+        <a href="/products?sort=discount" style={{display:'inline-block',background:'#FFF',color:'#DC2626',textDecoration:'none',fontSize:11,fontWeight:700,letterSpacing:3,textTransform:'uppercase',padding:'14px 36px',transition:'all 0.2s'}}
+        onMouseEnter={e=>{e.target.style.background='#000';e.target.style.color='#FFF'}} onMouseLeave={e=>{e.target.style.background='#FFF';e.target.style.color='#DC2626'}}>Shop Sale</a>
       </section>
 
-      {/* SALE PRODUCTS */}
-      <section style={{padding:PAD,background:'#F5F5F5'}}>
-        <div style={{maxWidth:1600,margin:'0 auto'}}>
-          <div style={{marginBottom:isMobile?28:44,display:'flex',justifyContent:'space-between',alignItems:'baseline'}}>
-            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:isMobile?24:36,fontWeight:900,letterSpacing:-1.5,textTransform:'uppercase',margin:0}}>BIGGEST DISCOUNTS</h2>
-            <a href="/products?sort=discount" style={{color:'#000',textDecoration:'none',fontSize:11,fontWeight:700,letterSpacing:2,textTransform:'uppercase',borderBottom:'2px solid #000',paddingBottom:4}}>VIEW ALL</a>
+      <section style={{padding:P,background:'#FAFAFA'}}>
+        <div style={{maxWidth:1400,margin:'0 auto'}}>
+          <div style={{marginBottom:M?32:48}}>
+            <p style={{fontSize:10,fontWeight:700,letterSpacing:4,textTransform:'uppercase',color:'#999',margin:'0 0 8px'}}>Deals</p>
+            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:T,fontWeight:900,letterSpacing:-1,textTransform:'uppercase',margin:0}}>Biggest Discounts</h2>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(auto-fill, minmax(240px, 1fr))',gap:GAP}}>
+          <div style={{display:'grid',gridTemplateColumns:M?'repeat(2,1fr)':'repeat(4,1fr)',gap:M?10:16}}>
             {saleProducts.map(p=><ProductCard key={p.id} product={p}/>)}
           </div>
         </div>
       </section>
 
-      {/* GENDER — SNIPES STYLE BIG BLOCKS */}
-      <section style={{padding:0,background:'#000'}}>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:2}}>
-          {['MEN','WOMEN','KIDS'].map(g=>(
-            <a key={g} href={`/products?gender=${g.toLowerCase()}`} style={{background:'#0A0A0A',color:'#FFF',textDecoration:'none',padding:isMobile?'56px 24px':'90px 36px',textAlign:'center',display:'block',transition:'all 0.3s'}}
-            onMouseEnter={e=>e.target.style.background='#DC2626'} onMouseLeave={e=>e.target.style.background='#0A0A0A'}>
-              <span style={{fontFamily:'Montserrat, sans-serif',fontSize:isMobile?28:40,fontWeight:900,letterSpacing:-1.5,display:'block',marginBottom:8}}>{g}</span>
-              <span style={{fontSize:11,fontWeight:700,letterSpacing:3,textTransform:'uppercase',borderBottom:'2px solid rgba(255,255,255,0.4)',paddingBottom:8}}>SHOP NOW</span>
-            </a>
-          ))}
+      <section style={{background:'#0A0A0A',padding:P}}>
+        <div style={{maxWidth:1400,margin:'0 auto'}}>
+          <div style={{marginBottom:M?32:48}}>
+            <p style={{fontSize:10,fontWeight:700,letterSpacing:4,textTransform:'uppercase',color:'#666',margin:'0 0 8px'}}>Shop By</p>
+            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:T,fontWeight:900,letterSpacing:-1,textTransform:'uppercase',color:'#FFF',margin:0}}>Gender</h2>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:M?'1fr':'repeat(3,1fr)',gap:M?8:2}}>
+            {['MEN','WOMEN','KIDS'].map(g=>(
+              <a key={g} href={`/products?gender=${g.toLowerCase()}`} style={{background:'#111',color:'#FFF',textDecoration:'none',padding:M?'48px 24px':'72px 36px',textAlign:'center',display:'block',transition:'all 0.4s'}}
+              onMouseEnter={e=>e.target.style.background='#1A1A1A'} onMouseLeave={e=>e.target.style.background='#111'}>
+                <span style={{fontFamily:'Montserrat, sans-serif',fontSize:M?24:32,fontWeight:900,letterSpacing:-1,display:'block',marginBottom:12}}>{g}</span>
+                <span style={{fontSize:10,fontWeight:600,letterSpacing:3,textTransform:'uppercase',color:'#888'}}>Shop Now →</span>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* NEW ARRIVALS */}
-      <section style={{padding:PAD,background:'#FFF'}}>
-        <div style={{maxWidth:1600,margin:'0 auto'}}>
-          <div style={{marginBottom:isMobile?28:44,display:'flex',justifyContent:'space-between',alignItems:'baseline'}}>
-            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:isMobile?24:36,fontWeight:900,letterSpacing:-1.5,textTransform:'uppercase',margin:0}}>NEW ARRIVALS</h2>
-            <a href="/products" style={{color:'#000',textDecoration:'none',fontSize:11,fontWeight:700,letterSpacing:2,textTransform:'uppercase',borderBottom:'2px solid #000',paddingBottom:4}}>VIEW ALL</a>
+      <section style={{padding:P}}>
+        <div style={{maxWidth:1400,margin:'0 auto'}}>
+          <div style={{marginBottom:M?32:48}}>
+            <p style={{fontSize:10,fontWeight:700,letterSpacing:4,textTransform:'uppercase',color:'#999',margin:'0 0 8px'}}>Fresh In</p>
+            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:T,fontWeight:900,letterSpacing:-1,textTransform:'uppercase',margin:0}}>New Arrivals</h2>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(auto-fill, minmax(240px, 1fr))',gap:GAP}}>
+          <div style={{display:'grid',gridTemplateColumns:M?'repeat(2,1fr)':'repeat(4,1fr)',gap:M?10:16}}>
             {newArrivals.map(p=><ProductCard key={p.id} product={p}/>)}
           </div>
         </div>
       </section>
 
-      {/* STORE + MAP */}
-      <section style={{padding:PAD,background:'#0A0A0A',color:'#FFF'}}>
-        <div style={{maxWidth:1200,margin:'0 auto',display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?28:48,alignItems:'center'}}>
+      <section style={{padding:P,background:'#FAFAFA'}}>
+        <div style={{maxWidth:1000,margin:'0 auto',display:'grid',gridTemplateColumns:M?'1fr':'1fr 1fr',gap:M?28:48,alignItems:'center'}}>
           <div>
-            <p style={{fontSize:10,fontWeight:700,letterSpacing:3,textTransform:'uppercase',color:'#DC2626',margin:'0 0 8px'}}>VISIT US</p>
-            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:isMobile?24:34,fontWeight:900,letterSpacing:-1.5,margin:'0 0 16px',textTransform:'uppercase'}}>DUA MALL, STRUGA</h2>
-            <p style={{color:'#999',fontSize:13,margin:'0 0 4px'}}>North Macedonia</p>
-            <p style={{fontWeight:700,fontSize:15,margin:'0 0 12px'}}>+389 70 123 456</p>
-            <p style={{color:'#999',fontSize:12,margin:'0 0 3px'}}>Mon—Fri: 09:00—21:00</p>
-            <p style={{color:'#999',fontSize:12,margin:'0 0 3px'}}>Saturday: 09:00—22:00</p>
-            <p style={{color:'#999',fontSize:12,margin:'0 0 16px'}}>Sunday: 10:00—20:00</p>
-            <div style={{display:'flex',gap:10}}>
-              <a href="https://instagram.com/outletxstruga" target="_blank" rel="noopener noreferrer" style={{background:'#DC2626',color:'#FFF',textDecoration:'none',fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'10px 20px',display:'inline-block'}}>INSTAGRAM</a>
-              <a href="/contact" style={{background:'transparent',color:'#FFF',textDecoration:'none',fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'10px 20px',border:'1px solid #444',display:'inline-block'}}>DIRECTIONS</a>
-            </div>
+            <p style={{fontSize:10,fontWeight:700,letterSpacing:4,textTransform:'uppercase',color:'#999',margin:'0 0 8px'}}>Visit Us</p>
+            <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:T,fontWeight:900,letterSpacing:-1,textTransform:'uppercase',margin:'0 0 16px'}}>Dua Mall, Struga</h2>
+            <p style={{color:'#666',fontSize:13,margin:'0 0 4px'}}>North Macedonia</p>
+            <p style={{fontWeight:700,fontSize:14,margin:'0 0 16px'}}>+389 70 123 456</p>
+            <p style={{color:'#888',fontSize:12,margin:'0 0 4px'}}>Mon—Fri: 09:00—21:00</p>
+            <p style={{color:'#888',fontSize:12,margin:'0 0 4px'}}>Sat: 09:00—22:00</p>
+            <p style={{color:'#888',fontSize:12,margin:'0 0 20px'}}>Sun: 10:00—20:00</p>
+            <a href="https://instagram.com/outletxstruga" target="_blank" rel="noopener noreferrer" style={{display:'inline-block',background:'#000',color:'#FFF',textDecoration:'none',fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'10px 24px'}}>Instagram</a>
           </div>
-          <div style={{height:isMobile?200:280,overflow:'hidden'}}>
+          <div style={{height:M?200:300,overflow:'hidden'}}>
             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d187.6620743480383!2d20.675127836415925!3d41.187039407592515!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1350e749a513feff%3A0xc0d3f98c173d96b8!2sOutlet%20X!5e0!3m2!1sen!2smk!4v1782426661903!5m2!1sen!2smk" width="100%" height="100%" style={{border:0}} allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin"></iframe>
           </div>
         </div>
@@ -158,15 +157,17 @@ export default function Home() {
 
       <RecentlyViewedHome />
 
-      {/* FOOTER */}
-      <footer style={{background:'#000',color:'#FFF',padding:isMobile?'40px 14px 20px':'60px 36px 24px'}}>
-        <div style={{maxWidth:1600,margin:'0 auto',display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'2fr 1fr 1fr 1fr',gap:isMobile?20:36,marginBottom:isMobile?24:40}}>
-          <div style={isMobile?{gridColumn:'span 2'}:{}}><h3 style={{fontFamily:'Montserrat, sans-serif',fontSize:20,fontWeight:900,marginBottom:8}}>OUTLET<span style={{color:'#DC2626'}}>X</span></h3><p style={{color:'#666',fontSize:12}}>Branded sportswear at outlet prices. Dua Mall, Struga.</p></div>
-          <div><p style={{color:'#DC2626',fontSize:9,fontWeight:700,letterSpacing:2,marginBottom:12,textTransform:'uppercase'}}>SHOP</p>{['MEN','WOMEN','KIDS','SHOES','CLOTHING','SALE'].map(i=><a key={i} href="/products" style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>{i}</a>)}</div>
-          <div><p style={{color:'#DC2626',fontSize:9,fontWeight:700,letterSpacing:2,marginBottom:12,textTransform:'uppercase'}}>BRANDS</p>{['NIKE','ADIDAS','PUMA','JORDAN','KAPPA','SKECHERS'].map(b=><a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>{b}</a>)}</div>
-          <div><p style={{color:'#DC2626',fontSize:9,fontWeight:700,letterSpacing:2,marginBottom:12,textTransform:'uppercase'}}>INFO</p><a href="/about" style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>ABOUT</a><a href="/contact" style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>CONTACT</a></div>
+      <footer style={{background:'#0A0A0A',color:'#FFF',borderTop:'1px solid #1A1A1A',padding:M?'40px 14px':'56px 36px 28px'}}>
+        <div style={{maxWidth:1400,margin:'0 auto',display:'grid',gridTemplateColumns:M?'repeat(2,1fr)':'2fr 1fr 1fr 1fr',gap:M?20:36,marginBottom:M?24:36}}>
+          <div style={M?{gridColumn:'span 2'}:{}}><h3 style={{fontFamily:'Montserrat, sans-serif',fontSize:18,fontWeight:900,marginBottom:8,letterSpacing:-1}}>OUTLET<span style={{color:'#DC2626'}}>X</span></h3><p style={{color:'#999',fontSize:11,lineHeight:1.7}}>Branded sportswear at outlet prices.<br/>Dua Mall, Struga, North Macedonia.</p></div>
+          <div>
+            <p style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:12,color:'#DC2626'}}>Shop</p>
+            {[{label:'Men',link:'/products?gender=men'},{label:'Women',link:'/products?gender=women'},{label:'Kids',link:'/products?gender=kids'},{label:'Shoes',link:'/products?category=shoes'},{label:'Clothing',link:'/products?category=clothing'},{label:'Sale',link:'/products?sort=discount'}].map(i=><a key={i.label} href={i.link} style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>{i.label}</a>)}
+          </div>
+          <div><p style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:12,color:'#000'}}>Brands</p>{['Nike','Adidas','Puma','Jordan','Kappa','Skechers'].map(b=><a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>{b}</a>)}</div>
+          <div><p style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:12,color:'#000'}}>Info</p><a href="/about" style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>About</a><a href="/contact" style={{display:'block',color:'#888',fontSize:11,textDecoration:'none',padding:'2px 0'}}>Contact</a></div>
         </div>
-        <div style={{borderTop:'1px solid #1A1A1A',paddingTop:16,textAlign:'center',color:'#555',fontSize:10}}>&copy; 2024 OUTLETX. ALL RIGHTS RESERVED.</div>
+        <div style={{textAlign:'center',color:'#555',fontSize:10}}>&copy; 2024 OUTLETX. All rights reserved.</div>
       </footer>
     </>
   );

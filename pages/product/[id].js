@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import ProductCard from '../../components/ProductCard';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import { useCart } from '../../context/CartContext';
 import products from '../../data/products';
 
@@ -79,17 +80,22 @@ export default function ProductDetail() {
 
       <section style={{padding: isMobile ? '24px 16px' : '50px 40px', background: '#FFFFFF'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
-          <a href="/products" style={{color: '#777', textDecoration: 'none', fontSize: 12, fontWeight: 600, display: 'inline-block', marginBottom: 24}}>&larr; Back</a>
+          <Breadcrumbs items={[
+            { label: 'Products', link: '/products' },
+            { label: product.category, link: `/products?category=${product.category.toLowerCase()}` },
+            { label: product.brand, link: `/products?brand=${product.brand.toLowerCase()}` },
+            { label: product.name, link: null },
+          ]} />
 
           <div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 24 : 60, alignItems: 'start'}}>
             <div>
-              <div style={{aspectRatio: '1', background: '#F5F5F5', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <img src={product.images[selectedImage]} alt={product.name} style={{width: '100%', height: '100%', objectFit: 'contain'}} />
+              <div style={{aspectRatio: '1', background: '#FFF', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #F0F0F0'}}>
+                <img src={product.images[selectedImage]} alt={product.name} style={{width: '85%', height: '85%', objectFit: 'contain'}} />
               </div>
               {product.images.length > 1 && (
                 <div style={{display: 'flex', gap: 8}}>
                   {product.images.map((img, i) => (
-                    <div key={i} onClick={() => setSelectedImage(i)} style={{width: 56, height: 56, background: '#F5F5F5', cursor: 'pointer', border: i === selectedImage ? '2px solid #000000' : '2px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <div key={i} onClick={() => setSelectedImage(i)} style={{width: 56, height: 56, background: '#FFF', cursor: 'pointer', border: i === selectedImage ? '2px solid #000' : '1px solid #E5E5E5', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <img src={img} alt="" style={{width: '100%', height: '100%', objectFit: 'contain'}} />
                     </div>
                   ))}
@@ -114,33 +120,31 @@ export default function ProductDetail() {
               )}
 
               <div style={{marginBottom: 20}}>
-                <p style={{fontWeight: 700, fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', color: '#999', marginBottom: 8}}>Available Sizes</p>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8}}>
+                  <p style={{fontWeight: 700, fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', color: '#999', margin: 0}}>Available Sizes</p>
+                  <span style={{fontSize: 10, color: '#999', cursor: 'pointer', textDecoration: 'underline'}}>Size Guide</span>
+                </div>
                 <div style={{display: 'flex', flexWrap: 'wrap', gap: 6}}>
                   {sizes.map((s, i) => (
                     <button key={i} onClick={() => setSelectedSize(s.size)} style={{
-                      background: selectedSize === s.size ? '#000' : '#F5F5F5',
+                      background: selectedSize === s.size ? '#000' : '#FFF',
                       color: selectedSize === s.size ? '#FFF' : (s.stock || 0) <= 2 ? '#DC2626' : '#000',
-                      border: selectedSize === s.size ? '1px solid #000' : '1px solid transparent',
+                      border: selectedSize === s.size ? '1px solid #000' : '1px solid #E5E5E5',
                       fontSize: 12, fontWeight: 600, padding: '7px 14px', cursor: (s.stock || 0) > 0 ? 'pointer' : 'not-allowed',
-                      opacity: (s.stock || 0) > 0 ? 1 : 0.4,
-                      fontFamily: 'Inter, sans-serif',
-                    }}>
-                      {s.size}
-                    </button>
+                      opacity: (s.stock || 0) > 0 ? 1 : 0.4, fontFamily: 'Inter, sans-serif',
+                    }}>{s.size}</button>
                   ))}
                 </div>
                 {selectedSize && (
-                  <p style={{fontSize: 11, color: '#999', marginTop: 6}}>
-                    Stock: {sizes.find(s => s.size === selectedSize)?.stock || 0} available
-                  </p>
+                  <p style={{fontSize: 11, color: '#999', marginTop: 6}}>Stock: {sizes.find(s => s.size === selectedSize)?.stock || 0} available</p>
                 )}
               </div>
 
               <div style={{display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 24}}>
                 <a href={`/checkout?id=${product.id}&size=${selectedSize}`} style={{
-                  background: selectedSize ? '#DC2626' : '#CCC',
-                  color: '#FFF', textDecoration: 'none', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '14px 28px', display: 'inline-block',
-                  pointerEvents: selectedSize ? 'auto' : 'none',
+                  background: selectedSize ? '#DC2626' : '#CCC', color: '#FFF', textDecoration: 'none',
+                  fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
+                  padding: '14px 28px', display: 'inline-block', pointerEvents: selectedSize ? 'auto' : 'none',
                 }}>Buy Now</a>
                 <a href="https://instagram.com/outletxstruga" target="_blank" rel="noopener noreferrer" style={{background: 'transparent', color: '#000', textDecoration: 'none', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', padding: '14px 28px', border: '1px solid #E5E5E5', display: 'inline-block'}}>Ask Question</a>
               </div>
@@ -155,7 +159,7 @@ export default function ProductDetail() {
 
           {relatedProducts.length > 0 && (
             <div style={{marginTop: 60}}>
-              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 20 : 26, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase', marginBottom: 20}}>Related</h2>
+              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 20 : 26, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase', marginBottom: 20}}>You May Also Like</h2>
               <div style={{display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(240px, 1fr))', gap: isMobile ? 10 : 20}}>
                 {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
               </div>

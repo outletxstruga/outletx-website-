@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import ProductCard from '../components/ProductCard';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { useCart } from '../context/CartContext';
 import products from '../data/products';
 
@@ -38,6 +39,7 @@ export default function ProductsPage() {
     if (sortBy === 'discount') result.sort((a, b) => b.discount - a.discount);
     if (sortBy === 'price-low') result.sort((a, b) => a.newPrice - b.newPrice);
     if (sortBy === 'price-high') result.sort((a, b) => b.newPrice - a.newPrice);
+    if (sortBy === 'newest') result.reverse();
     return result;
   }, [gender, brand, category, age, search, sortBy]);
 
@@ -51,11 +53,7 @@ export default function ProductsPage() {
   };
 
   const clearFilters = () => router.push('/products');
-
   const hasActiveFilters = gender || brand || category || age;
-
-  const inputStyle = { width: '100%', padding: isMobile ? 10 : 13, border: '1px solid #E5E5E5', background: '#FFFFFF', fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box' };
-  const selectStyle = { padding: isMobile ? 10 : 13, border: '1px solid #E5E5E5', background: '#FFFFFF', fontSize: 13, fontFamily: 'Inter, sans-serif', cursor: 'pointer', outline: 'none', minWidth: isMobile ? 140 : 180 };
 
   return (
     <>
@@ -101,6 +99,13 @@ export default function ProductsPage() {
 
       <section style={{padding: isMobile ? '20px 16px' : '30px 40px', background: '#F9F9F9', minHeight: '60vh'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
+          <Breadcrumbs items={[
+            { label: 'Products', link: '/products' },
+            ...(gender ? [{ label: gender, link: `/products?gender=${gender}` }] : []),
+            ...(category ? [{ label: category, link: `/products?category=${category}` }] : []),
+            ...(brand ? [{ label: brand, link: `/products?brand=${brand}` }] : []),
+          ]} />
+
           <div style={{marginBottom: 20}}>
             <h1 style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 22 : 32, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase', marginBottom: 4}}>{pageTitle()}</h1>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8}}>
@@ -112,11 +117,12 @@ export default function ProductsPage() {
           </div>
 
           <div style={{display: 'flex', gap: isMobile ? 8 : 12, marginBottom: 16, flexWrap: 'wrap'}}>
-            <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} style={{...inputStyle, flex: 1, minWidth: isMobile ? 140 : 220}} />
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={selectStyle}>
+            <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} style={{flex: 1, minWidth: isMobile ? 140 : 220, padding: isMobile ? 10 : 13, border: '1px solid #E5E5E5', background: '#FFFFFF', fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box'}} />
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{padding: isMobile ? 10 : 13, border: '1px solid #E5E5E5', background: '#FFFFFF', fontSize: 13, fontFamily: 'Inter, sans-serif', cursor: 'pointer', outline: 'none', minWidth: isMobile ? 140 : 180}}>
               <option value="discount">Biggest Discount</option>
               <option value="price-low">Price: Low-High</option>
               <option value="price-high">Price: High-Low</option>
+              <option value="newest">Newest First</option>
             </select>
             {isMobile && (
               <button onClick={() => setFilterOpen(!filterOpen)} style={{background: '#000000', color: '#FFFFFF', border: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', padding: '10px 16px', cursor: 'pointer', fontFamily: 'Inter, sans-serif'}}>

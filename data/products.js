@@ -73,7 +73,7 @@ const products = [
     ],
     "discount": 25,
     "inStock": true,
-    "featured": false
+    "featured": true
   },
   {
     "id": 3,
@@ -111,7 +111,7 @@ const products = [
     ],
     "discount": 25,
     "inStock": true,
-    "featured": false
+    "featured": true
   }
 ];
 
