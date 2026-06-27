@@ -45,6 +45,7 @@ export default function ProductDetail() {
   const sizes = product.sizes || [];
   const totalStock = sizes.reduce((sum, s) => sum + (s.stock || 0), 0);
   const relatedProducts = products.filter(p => p.id !== product.id && (p.category === product.category || p.brand === product.brand)).slice(0, 4);
+  const M = isMobile;
 
   return (
     <>
@@ -55,30 +56,30 @@ export default function ProductDetail() {
       </Head>
 
       <header style={{background: '#FFFFFF', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #F0F0F0'}}>
-        <div style={{background: '#000000', color: '#FFFFFF', textAlign: 'center', fontSize: isMobile ? 9 : 10, fontWeight: 700, letterSpacing: 2, padding: '10px 16px', textTransform: 'uppercase'}}>
-          {isMobile ? 'FREE DELIVERY OVER 3000 MKD' : 'Dua Mall, Struga \u00a0\u2022\u00a0 Free Delivery Over 3000 MKD'}
+        <div style={{background: '#000000', color: '#FFFFFF', textAlign: 'center', fontSize: M ? 9 : 10, fontWeight: 700, letterSpacing: 2, padding: '10px 16px', textTransform: 'uppercase'}}>
+          {M ? 'FREE DELIVERY OVER 3000 MKD' : 'Dua Mall, Struga \u00a0\u2022\u00a0 Free Delivery Over 3000 MKD'}
         </div>
-        <div style={{maxWidth: 1600, margin: '0 auto', padding: isMobile ? '0 16px' : '0 40px', height: isMobile ? 60 : 72, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <a href="/" style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 22 : 28, fontWeight: 900, color: '#000000', textDecoration: 'none', letterSpacing: -1.5}}>OUTLET<span style={{color: '#DC2626'}}>X</span></a>
-          {!isMobile && (
+        <div style={{maxWidth: 1600, margin: '0 auto', padding: M ? '0 16px' : '0 40px', height: M ? 60 : 72, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <a href="/" style={{fontFamily: 'Montserrat, sans-serif', fontSize: M ? 22 : 28, fontWeight: 900, color: '#000000', textDecoration: 'none', letterSpacing: -1.5}}>OUTLET<span style={{color: '#DC2626'}}>X</span></a>
+          {!M && (
             <nav style={{display: 'flex', gap: 48}}>
               <a href="/" style={{color: '#000000', textDecoration: 'none', fontSize: 13, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase'}}>Home</a>
               <a href="/products" style={{color: '#000000', textDecoration: 'none', fontSize: 13, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase'}}>Products</a>
             </nav>
           )}
-          <div style={{display: 'flex', gap: isMobile ? 8 : 16, alignItems: 'center'}}>
+          <div style={{display: 'flex', gap: M ? 8 : 16, alignItems: 'center'}}>
             <button onClick={() => setCartOpen(!cartOpen)} style={{background: 'none', border: 'none', cursor: 'pointer', position: 'relative', padding: 8}}>
-              <svg width={isMobile ? 20 : 22} height={isMobile ? 20 : 22} fill="none" stroke="#000000" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+              <svg width={M ? 20 : 22} height={M ? 20 : 22} fill="none" stroke="#000000" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
               {cartCount > 0 && <span style={{position: 'absolute', top: -2, right: -4, background: '#DC2626', color: '#FFFFFF', fontSize: 10, fontWeight: 700, width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{cartCount}</span>}
             </button>
             <button onClick={() => setMenuOpen(!menuOpen)} style={{background: 'none', border: 'none', cursor: 'pointer', padding: 8}}>
-              <svg width={isMobile ? 20 : 22} height={isMobile ? 20 : 22} fill="none" stroke="#000000" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+              <svg width={M ? 20 : 22} height={M ? 20 : 22} fill="none" stroke="#000000" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
             </button>
           </div>
         </div>
       </header>
 
-      <section style={{padding: isMobile ? '24px 16px' : '50px 40px', background: '#FFFFFF'}}>
+      <section style={{padding: M ? '24px 16px' : '50px 40px', background: '#FFFFFF'}}>
         <div style={{maxWidth: 1600, margin: '0 auto'}}>
           <Breadcrumbs items={[
             { label: 'Products', link: '/products' },
@@ -87,7 +88,7 @@ export default function ProductDetail() {
             { label: product.name, link: null },
           ]} />
 
-          <div style={{display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 24 : 60, alignItems: 'start'}}>
+          <div style={{display: 'grid', gridTemplateColumns: M ? '1fr' : '1fr 1fr', gap: M ? 24 : 60, alignItems: 'start'}}>
             <div>
               <div style={{aspectRatio: '1', background: '#FFF', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #F0F0F0'}}>
                 <img src={product.images[selectedImage]} alt={product.name} style={{width: '85%', height: '85%', objectFit: 'contain'}} />
@@ -105,11 +106,11 @@ export default function ProductDetail() {
 
             <div>
               <p style={{fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: '#DC2626', marginBottom: 6}}>{product.brand}</p>
-              <h1 style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 24 : 32, fontWeight: 900, letterSpacing: -1, marginBottom: 6, textTransform: 'uppercase'}}>{product.name}</h1>
+              <h1 style={{fontFamily: 'Montserrat, sans-serif', fontSize: M ? 24 : 32, fontWeight: 900, letterSpacing: -1, marginBottom: 6, textTransform: 'uppercase'}}>{product.name}</h1>
               {product.sku && <p style={{fontSize: 11, color: '#999', marginBottom: 16}}>{product.sku}</p>}
 
               <div style={{display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 6}}>
-                <span style={{fontSize: isMobile ? 24 : 28, fontWeight: 900}}>{product.newPrice} MKD</span>
+                <span style={{fontSize: M ? 24 : 28, fontWeight: 900}}>{product.newPrice} MKD</span>
                 <span style={{fontSize: 14, color: '#999', textDecoration: 'line-through'}}>{product.oldPrice} MKD</span>
                 <span style={{background: '#DC2626', color: '#FFF', fontSize: 11, fontWeight: 700, padding: '3px 8px'}}>-{product.discount}%</span>
               </div>
@@ -159,8 +160,8 @@ export default function ProductDetail() {
 
           {relatedProducts.length > 0 && (
             <div style={{marginTop: 60}}>
-              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: isMobile ? 20 : 26, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase', marginBottom: 20}}>You May Also Like</h2>
-              <div style={{display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(240px, 1fr))', gap: isMobile ? 10 : 20}}>
+              <h2 style={{fontFamily: 'Montserrat, sans-serif', fontSize: M ? 20 : 26, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase', marginBottom: 20}}>You May Also Like</h2>
+              <div style={{display: 'grid', gridTemplateColumns: M ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(240px, 1fr))', gap: M ? 10 : 20}}>
                 {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
               </div>
             </div>
@@ -168,15 +169,15 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <footer style={{background: '#0A0A0A', color: '#FFFFFF', padding: isMobile ? '40px 16px 20px' : '60px 40px 24px'}}>
-        <div style={{maxWidth: 1600, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? 20 : 40, marginBottom: isMobile ? 28 : 40}}>
-          <div style={isMobile ? {gridColumn: 'span 2'} : {}}>
+      <footer style={{background: '#0A0A0A', color: '#FFFFFF', padding: M ? '40px 16px 20px' : '60px 40px 24px'}}>
+        <div style={{maxWidth: 1600, margin: '0 auto', display: 'grid', gridTemplateColumns: M ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: M ? 20 : 40, marginBottom: M ? 28 : 40}}>
+          <div style={M ? {gridColumn: 'span 2'} : {}}>
             <h3 style={{fontFamily: 'Montserrat, sans-serif', fontSize: 20, fontWeight: 900, marginBottom: 10}}>OUTLET<span style={{color: '#DC2626'}}>X</span></h3>
             <p style={{color: '#666', fontSize: 12, lineHeight: 1.7}}>Branded sportswear at outlet prices. Dua Mall, Struga.</p>
           </div>
-          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Shop</p>{['Men', 'Women', 'Kids', 'Shoes', 'Clothing'].map(i => <a key={i} href="/products" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{i}</a>)}</div>
-          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Brands</p>{['Nike', 'Adidas', 'Puma', 'Jordan', 'Kappa'].map(b => <a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>{b}</a>)}</div>
-          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Info</p><a href="/about" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>About</a><a href="/contact" style={{display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '3px 0'}}>Contact</a></div>
+          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Shop</p>{[{label:'Men',link:'/products?gender=men'},{label:'Women',link:'/products?gender=women'},{label:'Kids',link:'/products?gender=kids'},{label:'Shoes',link:'/products?category=shoes'},{label:'Clothing',link:'/products?category=clothing'}].map(i=><a key={i.label} href={i.link} style={{display:'block',color:'#888',fontSize:12,textDecoration:'none',padding:'3px 0'}}>{i.label}</a>)}</div>
+          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Brands</p>{['Nike','Adidas','Puma','Jordan','Kappa'].map(b=><a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{display:'block',color:'#888',fontSize:12,textDecoration:'none',padding:'3px 0'}}>{b}</a>)}</div>
+          <div><p style={{color: '#DC2626', fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 14, textTransform: 'uppercase'}}>Info</p><a href="/about" style={{display:'block',color:'#888',fontSize:12,textDecoration:'none',padding:'3px 0'}}>About</a><a href="/contact" style={{display:'block',color:'#888',fontSize:12,textDecoration:'none',padding:'3px 0'}}>Contact</a></div>
         </div>
         <div style={{borderTop: '1px solid #1A1A1A', paddingTop: 16, textAlign: 'center', color: '#555', fontSize: 10}}>&copy; 2024 OUTLETX. All rights reserved.</div>
       </footer>
