@@ -84,32 +84,28 @@ export default function Home() {
   ];
 
   const categories = [
-    { label: 'SHOES', href: '/products?category=shoes', note: 'Premium pairs' },
-    { label: 'CLOTHING', href: '/products?category=clothing', note: 'Sport style' },
-    { label: 'ACCESSORIES', href: '/products?category=accessories', note: 'Daily details' },
-    { label: 'MEN', href: '/products?gender=men', note: 'Sharp fits' },
-    { label: 'WOMEN', href: '/products?gender=women', note: 'Clean selection' },
-    { label: 'KIDS', href: '/products?gender=kids', note: 'Outlet picks' },
+    { label: 'SHOES', href: '/products?category=shoes' },
+    { label: 'CLOTHING', href: '/products?category=clothing' },
+    { label: 'ACCESSORIES', href: '/products?category=accessories' },
+    { label: 'MEN', href: '/products?gender=men' },
+    { label: 'WOMEN', href: '/products?gender=women' },
+    { label: 'KIDS', href: '/products?gender=kids' },
   ];
 
- const brandList = [
-  { name: 'NIKE', logo: '/images/logos/png-clipart-nike-logo-swoosh-angle-font-nike-white-rectangle-removebg-preview.png' },
-  { name: 'ADIDAS', logo: '/images/logos/R__1_-removebg-preview.png' },
-  { name: 'PUMA', logo: '/images/logos/79498-middle-removebg-preview.png' },
-  { name: 'JORDAN', logo: '/images/logos/JMXYPn-removebg-preview.png' },
-  { name: 'KAPPA', logo: '/images/logos/Kappa-Symbol-removebg-preview.png' },
-  { name: 'SKECHERS', logo: '/images/logos/Skechers-Logo-500x281-removebg-preview.png' },
-  { name: '4F', logo: '/images/logos/90da3709-7019-49ba-8835-08b806ccfe8d-removebg-preview.png' },
-];
-  
+  const brandList = [
+    { name: 'NIKE', logo: '/images/logos/png-clipart-nike-logo-swoosh-angle-font-nike-white-rectangle-removebg-preview.png' },
+    { name: 'ADIDAS', logo: '/images/logos/R__1_-removebg-preview.png' },
+    { name: 'PUMA', logo: '/images/logos/79498-middle-removebg-preview.png' },
+    { name: 'JORDAN', logo: '/images/logos/JMXYPn-removebg-preview.png' },
+    { name: 'KAPPA', logo: '/images/logos/Kappa-Symbol-removebg-preview.png' },
+    { name: 'SKECHERS', logo: '/images/logos/Skechers-Logo-500x281-removebg-preview.png' },
+    { name: '4F', logo: '/images/logos/90da3709-7019-49ba-8835-08b806ccfe8d-removebg-preview.png' },
+  ];
 
-  const sectionHeader = (eyebrow, title, subtitle, dark) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: M ? 'flex-start' : 'flex-end', flexDirection: M ? 'column' : 'row', gap: M ? 16 : 36, margin: M ? '0 0 34px' : '0 0 54px' }}>
-      <div>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 800, letterSpacing: 4, textTransform: 'uppercase', color: dark ? '#888' : '#DC2626', margin: '0 0 12px' }}>{eyebrow}</p>
-        <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: T, fontWeight: 900, lineHeight: 0.95, letterSpacing: M ? -1 : -2, textTransform: 'uppercase', color: dark ? '#FFF' : '#000', margin: '0' }}>{title}</h2>
-      </div>
-      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: M ? 12 : 14, lineHeight: 1.8, color: dark ? '#888' : '#666', maxWidth: 470, margin: '0' }}>{subtitle}</p>
+  const sectionHeader = (eyebrow, title, dark) => (
+    <div style={{ margin: M ? '0 0 28px' : '0 0 44px' }}>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 800, letterSpacing: 4, textTransform: 'uppercase', color: dark ? '#888' : '#DC2626', margin: '0 0 10px' }}>{eyebrow}</p>
+      <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: T, fontWeight: 900, lineHeight: 0.95, letterSpacing: M ? -1 : -2, textTransform: 'uppercase', color: dark ? '#FFF' : '#000', margin: '0' }}>{title}</h2>
     </div>
   );
 
@@ -140,64 +136,25 @@ export default function Home() {
               ))}
               <div style={{ position: 'relative', marginLeft: 8 }} ref={searchRef}>
                 <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                  <input 
-                    type="text" 
-                    value={searchQuery} 
-                    onChange={e => handleSearchChange(e.target.value)}
-                    onFocus={() => { if (searchResults.length > 0) setShowResults(true); }}
-                    placeholder="Search..." 
-                    style={{
-                      width: 170, padding: '8px 12px', border: '1px solid #DDD', borderRight: 'none',
-                      fontSize: 11, fontFamily: 'Inter, sans-serif', outline: 'none', background: '#FAFAFA',
-                    }} 
-                  />
-                  <button type="submit" style={{
-                    background: '#000', color: '#FFF', border: '1px solid #000', padding: '8px 10px',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
+                  <input type="text" value={searchQuery} onChange={e => handleSearchChange(e.target.value)} onFocus={() => { if (searchResults.length > 0) setShowResults(true); }} placeholder="Search..." style={{ width: 170, padding: '8px 12px', border: '1px solid #DDD', borderRight: 'none', fontSize: 11, fontFamily: 'Inter, sans-serif', outline: 'none', background: '#FAFAFA' }} />
+                  <button type="submit" style={{ background: '#000', color: '#FFF', border: '1px solid #000', padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width={13} height={13} fill="none" stroke="#FFF" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                   </button>
                 </form>
                 {showResults && searchResults.length > 0 && (
-                  <div style={{
-                    position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFF',
-                    border: '1px solid #DDD', borderTop: 'none', zIndex: 200, maxHeight: 400, overflow: 'auto',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                  }}>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFF', border: '1px solid #DDD', borderTop: 'none', zIndex: 200, maxHeight: 400, overflow: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                     {searchResults.map(p => (
-                      <a key={p.id} href={`/product/${p.id}`} style={{
-                        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
-                        textDecoration: 'none', color: '#000', borderBottom: '1px solid #F0F0F0',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                      onMouseLeave={e => e.currentTarget.style.background = '#FFF'}
-                      onClick={() => { setShowResults(false); setSearchQuery(''); }}>
+                      <a key={p.id} href={`/product/${p.id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', textDecoration: 'none', color: '#000', borderBottom: '1px solid #F0F0F0', transition: 'background 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'} onMouseLeave={e => e.currentTarget.style.background = '#FFF'} onClick={() => { setShowResults(false); setSearchQuery(''); }}>
                         <img src={p.images[0]} alt={p.name} style={{width: 36, height: 36, objectFit: 'contain', background: '#FAFAFA'}} />
-                        <div style={{flex: 1}}>
-                          <p style={{fontSize: 11, fontWeight: 700, textTransform: 'uppercase', margin: 0}}>{p.name}</p>
-                          <p style={{fontSize: 10, color: '#999', margin: '2px 0 0'}}>{p.brand} — {p.newPrice} MKD</p>
-                        </div>
+                        <div style={{flex: 1}}><p style={{fontSize: 11, fontWeight: 700, textTransform: 'uppercase', margin: 0}}>{p.name}</p><p style={{fontSize: 10, color: '#999', margin: '2px 0 0'}}>{p.brand} — {p.newPrice} MKD</p></div>
                       </a>
                     ))}
-                    <a href={`/products?search=${encodeURIComponent(searchQuery.trim())}`} style={{
-                      display: 'block', textAlign: 'center', padding: '10px', background: '#000',
-                      color: '#FFF', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                      textTransform: 'uppercase',
-                    }} onClick={() => { setShowResults(false); setSearchQuery(''); }}>
-                      View All Results
-                    </a>
+                    <a href={`/products?search=${encodeURIComponent(searchQuery.trim())}`} style={{ display: 'block', textAlign: 'center', padding: '10px', background: '#000', color: '#FFF', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }} onClick={() => { setShowResults(false); setSearchQuery(''); }}>View All Results</a>
                   </div>
                 )}
                 {showResults && searchQuery.length >= 2 && searchResults.length === 0 && (
-                  <div style={{
-                    position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFF',
-                    border: '1px solid #DDD', borderTop: 'none', zIndex: 200,
-                    padding: '16px', textAlign: 'center', color: '#999', fontSize: 12,
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                  }}>
-                    No products found
-                  </div>
+                  <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFF', border: '1px solid #DDD', borderTop: 'none', zIndex: 200, padding: '16px', textAlign: 'center', color: '#999', fontSize: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>No products found</div>
                 )}
               </div>
             </nav>
@@ -205,9 +162,7 @@ export default function Home() {
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             {M && (
               <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center' }}>
-                <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search..." style={{
-                  width: 100, padding: '6px 10px', border: '1px solid #DDD', fontSize: 10, fontFamily: 'Inter, sans-serif', outline: 'none',
-                }} />
+                <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search..." style={{ width: 100, padding: '6px 10px', border: '1px solid #DDD', fontSize: 10, fontFamily: 'Inter, sans-serif', outline: 'none' }} />
               </form>
             )}
             <button onClick={toggleLang} style={{ background: '#FFF', border: '1px solid #DDD', color: '#000', padding: '7px 10px', fontSize: 10, fontWeight: 900, cursor: 'pointer', fontFamily: 'Inter, sans-serif', letterSpacing: 1 }}>{langLabel}</button>
@@ -238,7 +193,6 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.background = '#151515'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#0A0A0A'; e.currentTarget.style.transform = 'translateY(0)'; }}>
               <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: M ? 18 : 22, fontWeight: 900, letterSpacing: -1, textTransform: 'uppercase' }}>{c.label}</span>
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', color: '#777' }}>{c.note} →</span>
             </a>
           ))}
         </div>
@@ -246,7 +200,6 @@ export default function Home() {
           <div style={{ maxWidth: 1480, margin: '0 auto', display: 'grid', gridTemplateColumns: M ? '1fr' : '1fr 3fr 1fr', borderTop: '1px solid #1A1A1A' }}>
             <div style={{ padding: M ? '18px 18px' : '28px 32px', borderRight: M ? 'none' : '1px solid #1A1A1A', borderBottom: M ? '1px solid #1A1A1A' : 'none', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 900, letterSpacing: 4, color: '#DC2626', textTransform: 'uppercase', margin: '0 0 8px' }}>Premium Brands</p>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#999', lineHeight: 1.7, margin: '0' }}>100% authentic sportswear</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: M ? 28 : 56, flexWrap: 'wrap', padding: M ? '24px 14px' : '36px 28px', borderRight: M ? 'none' : '1px solid #1A1A1A', borderBottom: M ? '1px solid #1A1A1A' : 'none' }}>
               {brandList.map(b => (
@@ -267,7 +220,6 @@ export default function Home() {
             </div>
             <div style={{ padding: M ? '18px 18px' : '28px 32px', textAlign: M ? 'left' : 'right', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 900, letterSpacing: 4, color: '#DC2626', textTransform: 'uppercase', margin: '0 0 8px' }}>Outlet Prices</p>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#999', lineHeight: 1.7, margin: '0' }}>10% to 70% off retail</p>
             </div>
           </div>
         )}
@@ -275,7 +227,7 @@ export default function Home() {
 
       <section style={{ padding: P, background: '#FFF' }}>
         <div style={{ maxWidth: 1480, margin: '0 auto' }}>
-          {sectionHeader('Customer Favorites', t?.sections?.bestSellers || 'Best Sellers', 'Fast-moving branded pieces selected for stronger everyday sell-through.', false)}
+          {sectionHeader('Customer Favorites', t?.sections?.bestSellers || 'Best Sellers', false)}
           <div style={{ display: 'grid', gridTemplateColumns: M ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: M ? 12 : 22 }}>{bestSellers.map(p => <ProductCard key={p.id} product={p} />)}</div>
           <div style={{ textAlign: 'center', margin: M ? '34px 0 0' : '50px 0 0' }}><a href="/products" style={premiumButton} onMouseEnter={e => { e.currentTarget.style.background = '#DC2626'; e.currentTarget.style.border = '1px solid #DC2626'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#000'; e.currentTarget.style.border = '1px solid #000'; e.currentTarget.style.transform = 'translateY(0)'; }}>View All Products</a></div>
         </div>
@@ -287,7 +239,6 @@ export default function Home() {
         <div style={{ maxWidth: 1180, margin: '0 auto', position: 'relative', display: 'grid', gridTemplateColumns: M ? '1fr' : '0.9fr 1.1fr', gap: M ? 32 : 54, alignItems: 'center' }}>
           <div style={{ border: '1px solid #222', padding: M ? '26px 20px' : '42px 38px', background: '#0A0A0A' }}><p style={{ fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 900, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', margin: '0 0 18px' }}>Premium Outlet Event</p><h2 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: M ? 44 : 76, fontWeight: 900, lineHeight: 0.82, letterSpacing: M ? -2 : -4, textTransform: 'uppercase', color: '#FFF', margin: '0' }}>Up To<br /><span style={{ color: '#DC2626' }}>70%</span> Off</h2></div>
           <div>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: M ? 13 : 15, lineHeight: 1.9, color: '#999', margin: '0 0 26px', maxWidth: 560 }}>Original brands, limited outlet stock, sharper prices, and sizes that move fast.</p>
             <div style={{ display: 'grid', gridTemplateColumns: M ? '1fr' : 'repeat(3,1fr)', gap: 10, margin: '0 0 30px' }}>{['Limited Sizes', 'Original Brands', 'Outlet Pricing'].map(i => (<div key={i} style={{ border: '1px solid #222', padding: '14px 12px', color: '#FFF', fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 900, letterSpacing: 2, textTransform: 'uppercase', textAlign: 'center', background: '#0A0A0A' }}>{i}</div>))}</div>
             <a href="/products?sort=discount" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#DC2626', color: '#FFF', textDecoration: 'none', fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 900, letterSpacing: 3, textTransform: 'uppercase', padding: M ? '15px 34px' : '17px 44px', border: '1px solid #DC2626', transition: 'all 0.25s ease' }} onMouseEnter={e => { e.currentTarget.style.background = '#FFF'; e.currentTarget.style.color = '#000'; e.currentTarget.style.border = '1px solid #FFF'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={e => { e.currentTarget.style.background = '#DC2626'; e.currentTarget.style.color = '#FFF'; e.currentTarget.style.border = '1px solid #DC2626'; e.currentTarget.style.transform = 'translateY(0)'; }}>Shop Sale Now</a>
           </div>
@@ -296,14 +247,14 @@ export default function Home() {
 
       <section style={{ padding: P, background: '#FAFAFA' }}>
         <div style={{ maxWidth: 1480, margin: '0 auto' }}>
-          {sectionHeader('Highest Markdown', t?.sections?.biggestDiscounts || 'Biggest Discounts', 'The strongest price drops in stock right now.', false)}
+          {sectionHeader('Highest Markdown', t?.sections?.biggestDiscounts || 'Biggest Discounts', false)}
           <div style={{ display: 'grid', gridTemplateColumns: M ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: M ? 12 : 22 }}>{saleProducts.map(p => <ProductCard key={p.id} product={p} />)}</div>
         </div>
       </section>
 
       <section style={{ background: '#0A0A0A', padding: P }}>
         <div style={{ maxWidth: 1480, margin: '0 auto' }}>
-          {sectionHeader('Shop The Edit', 'Gender', 'Move customers faster into the right collection.', true)}
+          {sectionHeader('Shop The Edit', 'Gender', true)}
           <div style={{ display: 'grid', gridTemplateColumns: M ? '1fr' : 'repeat(3,1fr)', gap: M ? 12 : 16 }}>
             {['MEN', 'WOMEN', 'KIDS'].map((g, index) => (
               <a key={g} href={`/products?gender=${g.toLowerCase()}`} style={{ background: index === 1 ? '#151515' : '#111', color: '#FFF', textDecoration: 'none', padding: M ? '48px 24px' : '86px 38px', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: M ? 160 : 280, border: '1px solid #222', transition: 'all 0.32s ease', position: 'relative', overflow: 'hidden' }}
@@ -320,7 +271,7 @@ export default function Home() {
 
       <section style={{ padding: P, background: '#FFF' }}>
         <div style={{ maxWidth: 1480, margin: '0 auto' }}>
-          {sectionHeader('Fresh Stock', t?.sections?.newArrivals || 'New Arrivals', 'Recently added products for customers who want the newest outlet pieces.', false)}
+          {sectionHeader('Fresh Stock', t?.sections?.newArrivals || 'New Arrivals', false)}
           <div style={{ display: 'grid', gridTemplateColumns: M ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: M ? 12 : 22 }}>{newArrivals.map(p => <ProductCard key={p.id} product={p} />)}</div>
         </div>
       </section>
@@ -331,7 +282,6 @@ export default function Home() {
             <div>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 900, letterSpacing: 4, textTransform: 'uppercase', color: '#DC2626', margin: '0 0 14px' }}>Visit The Store</p>
               <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: M ? 31 : 44, fontWeight: 900, letterSpacing: -2, lineHeight: 0.95, textTransform: 'uppercase', margin: '0 0 24px', color: '#FFF' }}>Dua Mall,<br />Struga</h2>
-              <p style={{ color: '#999', fontSize: 13, lineHeight: 1.8, margin: '0 0 20px', fontFamily: 'Inter, sans-serif' }}>Premium branded sportswear outlet in North Macedonia.</p>
               <p style={{ color: '#FFF', fontWeight: 900, fontSize: 14, margin: '0 0 18px', fontFamily: 'Inter, sans-serif' }}>{CONTACT_PHONE}</p>
               <div style={{ borderTop: '1px solid #222', padding: '18px 0 0', margin: '0 0 26px' }}><p style={{ color: '#999', fontSize: 12, margin: '0 0 6px', fontFamily: 'Inter, sans-serif' }}>Mon—Fri: 09:00—21:00</p><p style={{ color: '#999', fontSize: 12, margin: '0 0 6px', fontFamily: 'Inter, sans-serif' }}>Sat: 09:00—22:00</p><p style={{ color: '#999', fontSize: 12, margin: '0', fontFamily: 'Inter, sans-serif' }}>Sun: 10:00—20:00</p></div>
             </div>
@@ -345,7 +295,7 @@ export default function Home() {
 
       <footer style={{ background: '#050505', color: '#FFF', borderTop: '1px solid #111', padding: M ? '50px 14px 28px' : '78px 36px 34px' }}>
         <div style={{ maxWidth: 1480, margin: '0 auto', display: 'grid', gridTemplateColumns: M ? 'repeat(2,1fr)' : '2.2fr 1fr 1fr 1fr', gap: M ? 28 : 48, marginBottom: M ? 34 : 52 }}>
-          <div style={M ? { gridColumn: 'span 2' } : {}}><h3 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: M ? 27 : 34, fontWeight: 900, margin: '0 0 14px', letterSpacing: -2 }}>OUTLET<span style={{ color: '#DC2626' }}>X</span></h3><p style={{ color: '#999', fontSize: 13, lineHeight: 1.9, margin: '0 0 22px', maxWidth: 420, fontFamily: 'Inter, sans-serif' }}>Luxury outlet feel. Branded sportswear prices. Dua Mall, Struga.</p><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{brandList.map(b => (<span key={b.name} style={{ border: '1px solid #222', color: '#888', fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 900, letterSpacing: 2, padding: '7px 9px' }}>{b.name}</span>))}</div></div>
+          <div style={M ? { gridColumn: 'span 2' } : {}}><h3 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: M ? 27 : 34, fontWeight: 900, margin: '0 0 14px', letterSpacing: -2 }}>OUTLET<span style={{ color: '#DC2626' }}>X</span></h3><p style={{ color: '#999', fontSize: 13, lineHeight: 1.9, margin: '0 0 22px', maxWidth: 420, fontFamily: 'Inter, sans-serif' }}>Branded sportswear at outlet prices. Dua Mall, Struga.</p><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{brandList.map(b => (<span key={b.name} style={{ border: '1px solid #222', color: '#888', fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 900, letterSpacing: 2, padding: '7px 9px' }}>{b.name}</span>))}</div></div>
           <div><p style={{ fontSize: 9, fontWeight: 900, letterSpacing: 3, textTransform: 'uppercase', margin: '0 0 16px', color: '#DC2626', fontFamily: 'Inter, sans-serif' }}>Shop</p>{[{ label: 'Men', link: '/products?gender=men' }, { label: 'Women', link: '/products?gender=women' }, { label: 'Kids', link: '/products?gender=kids' }, { label: 'Shoes', link: '/products?category=shoes' }, { label: 'Clothing', link: '/products?category=clothing' }, { label: 'Sale', link: '/products?sort=discount' }].map(i => (<a key={i.label} href={i.link} style={{ display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '5px 0', fontFamily: 'Inter, sans-serif', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.color = '#FFF'; }} onMouseLeave={e => { e.currentTarget.style.color = '#888'; }}>{i.label}</a>))}</div>
           <div><p style={{ fontSize: 9, fontWeight: 900, letterSpacing: 3, textTransform: 'uppercase', margin: '0 0 16px', color: '#FFF', fontFamily: 'Inter, sans-serif' }}>Brands</p>{['Nike', 'Adidas', 'Puma', 'Jordan', 'Kappa', 'Skechers'].map(b => (<a key={b} href={`/products?brand=${b.toLowerCase()}`} style={{ display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '5px 0', fontFamily: 'Inter, sans-serif', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.color = '#FFF'; }} onMouseLeave={e => { e.currentTarget.style.color = '#888'; }}>{b}</a>))}</div>
           <div><p style={{ fontSize: 9, fontWeight: 900, letterSpacing: 3, textTransform: 'uppercase', margin: '0 0 16px', color: '#FFF', fontFamily: 'Inter, sans-serif' }}>Info</p><a href="/about" style={{ display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '5px 0', fontFamily: 'Inter, sans-serif', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.color = '#FFF'; }} onMouseLeave={e => { e.currentTarget.style.color = '#888'; }}>About</a><a href="/contact" style={{ display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '5px 0', fontFamily: 'Inter, sans-serif', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.color = '#FFF'; }} onMouseLeave={e => { e.currentTarget.style.color = '#888'; }}>Contact</a><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'block', color: '#888', fontSize: 12, textDecoration: 'none', padding: '5px 0', fontFamily: 'Inter, sans-serif', transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.color = '#FFF'; }} onMouseLeave={e => { e.currentTarget.style.color = '#888'; }}>Instagram</a></div>

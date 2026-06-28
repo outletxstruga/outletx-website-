@@ -50,6 +50,7 @@ export default function AdminDashboard() {
               <a href="/admin" style={{color:'#000',textDecoration:'none',fontSize:12,fontWeight:700}}>Dashboard</a>
               <a href="/admin/products" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Products</a>
               <a href="/admin/orders" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Orders</a>
+<a href="/admin/order-form" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Order Form</a>
               <a href="/admin/customers" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Customers</a>
               <a href="/admin/settings" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Settings</a>
             </nav>
