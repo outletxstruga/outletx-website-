@@ -12,15 +12,17 @@ export function LanguageProvider({ children }) {
   }, []);
 
   const toggleLang = () => {
-    const next = lang === 'mk' ? 'en' : 'mk';
+    const langs = ['mk', 'sq', 'en'];
+    const currentIndex = langs.indexOf(lang);
+    const next = langs[(currentIndex + 1) % 3];
     setLang(next);
     localStorage.setItem('outletx_lang', next);
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations['mk'];
 
   return (
-    <LanguageContext.Provider value={{ lang, toggleLang, t }}>
+    <LanguageContext.Provider value={{ lang, toggleLang, t, setLang }}>
       {children}
     </LanguageContext.Provider>
   );
