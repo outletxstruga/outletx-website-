@@ -1,3 +1,4 @@
+import SizeGuide from '../../components/SizeGuide';
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -7,6 +8,7 @@ import { useCart } from '../../context/CartContext';
 import products from '../../data/products';
 
 export default function ProductDetail() {
+const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const router = useRouter();
   const { id } = router.query;
   const { cartCount, cartOpen, setCartOpen } = useCart();
@@ -192,7 +194,12 @@ export default function ProductDetail() {
               <div style={{marginBottom:20}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                   <p style={{fontWeight:700,fontSize:10,letterSpacing:1.5,textTransform:'uppercase',color:'#999',margin:0}}>Available Sizes</p>
-                  <span style={{fontSize:10,color:'#999',cursor:'pointer',textDecoration:'underline'}}>Size Guide</span>
+                 <button onClick={() => setSizeGuideOpen(true)} style={{
+  background: '#000', color: '#FFF', border: 'none',
+  fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
+  padding: '6px 14px', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+  borderRadius: 2,
+}}>Size Guide</button>
                 </div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
                   {sizes.map((s,i)=>(
@@ -244,7 +251,8 @@ export default function ProductDetail() {
           <div><p style={{fontSize:9,fontWeight:900,letterSpacing:3,textTransform:'uppercase',margin:'0 0 16px',color:'#FFF',fontFamily:'Inter, sans-serif'}}>Info</p><a href="/about" style={{display:'block',color:'#888',fontSize:12,textDecoration:'none',padding:'5px 0',fontFamily:'Inter, sans-serif',transition:'all 0.2s ease'}} onMouseEnter={e=>{e.currentTarget.style.color='#FFF'}} onMouseLeave={e=>{e.currentTarget.style.color='#888'}}>About</a><a href="/contact" style={{display:'block',color:'#888',fontSize:12,textDecoration:'none',padding:'5px 0',fontFamily:'Inter, sans-serif',transition:'all 0.2s ease'}} onMouseEnter={e=>{e.currentTarget.style.color='#FFF'}} onMouseLeave={e=>{e.currentTarget.style.color='#888'}}>Contact</a><a href="https://instagram.com/outletxstruga" target="_blank" rel="noopener noreferrer" style={{display:'block',color:'#888',fontSize:12,textDecoration:'none',padding:'5px 0',fontFamily:'Inter, sans-serif',transition:'all 0.2s ease'}} onMouseEnter={e=>{e.currentTarget.style.color='#FFF'}} onMouseLeave={e=>{e.currentTarget.style.color='#888'}}>Instagram</a></div>
         </div>
         <div style={{maxWidth:1480,margin:'0 auto',borderTop:'1px solid #151515',paddingTop:24,display:'flex',justifyContent:'space-between',alignItems:M?'flex-start':'center',flexDirection:M?'column':'row',gap:12,color:'#555',fontSize:10,fontFamily:'Inter, sans-serif',letterSpacing:1}}><span>&copy; 2024 OUTLETX. All rights reserved.</span><span>Dua Mall, Struga · Premium Outlet Store</span></div>
-      </footer>
+      </footer>	
+<SizeGuide isOpen={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />
     </>
   );
 }
