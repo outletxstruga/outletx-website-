@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useAdminSessionState } from '../../context/AdminSessionContext';
+import SiteLink from '../SiteLink';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -14,28 +16,18 @@ const NAV = [
 ];
 
 export function useAdminSession() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/admin/session')
-      .then((response) => {
-        if (!response.ok) throw new Error('unauthorized');
-        setReady(true);
-      })
-      .catch(() => router.replace('/admin/login'));
-  }, [router]);
-
-  return ready;
+  return useAdminSessionState().ready;
 }
 
 export default function AdminLayout({ title, eyebrow, action, children }) {
   const router = useRouter();
   const ready = useAdminSession();
+  const { clearSession } = useAdminSessionState();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const logout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' });
+    clearSession();
     router.replace('/admin/login');
   };
 
@@ -46,17 +38,17 @@ export default function AdminLayout({ title, eyebrow, action, children }) {
       <Head><title>{title} | OutletX Admin</title></Head>
       <aside className={`admin-sidebar ${menuOpen ? 'is-open' : ''}`}>
         <div className="admin-brand">
-          <a href="/admin" aria-label="OutletX admin home">OUTLET<span>X</span></a>
+          <SiteLink href="/admin" aria-label="OutletX admin home">OUTLET<span>X</span></SiteLink>
           <small>ADMIN CONSOLE</small>
         </div>
         <nav className="admin-nav" aria-label="Admin navigation">
           {NAV.map((item) => {
             const active = item.href === '/admin' ? router.pathname === '/admin' : router.pathname.startsWith(item.href);
-            return <a key={item.href} className={active ? 'active' : ''} href={item.href} onClick={() => setMenuOpen(false)}><b>{item.icon}</b><span>{item.label}</span></a>;
+            return <SiteLink key={item.href} className={active ? 'active' : ''} href={item.href} onClick={() => setMenuOpen(false)}><b>{item.icon}</b><span>{item.label}</span></SiteLink>;
           })}
         </nav>
         <div className="admin-sidebar-footer">
-          <a href="/" target="_blank" rel="noopener noreferrer">View storefront ↗</a>
+          <SiteLink href="/" target="_blank" rel="noopener noreferrer">View storefront ↗</SiteLink>
           <button onClick={logout}>Sign out</button>
         </div>
       </aside>
@@ -65,7 +57,7 @@ export default function AdminLayout({ title, eyebrow, action, children }) {
 
       <main className="admin-main">
         <header className="admin-mobile-header">
-          <a href="/admin">OUTLET<span>X</span></a>
+          <SiteLink href="/admin">OUTLET<span>X</span></SiteLink>
           <button aria-label="Open admin navigation" onClick={() => setMenuOpen(true)}>☰</button>
         </header>
         <div className="admin-page-head">

@@ -12,8 +12,17 @@ export function CartProvider({ children }) {
   const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('outletx_cart');
-    if (saved) setCart(JSON.parse(saved));
+    try {
+      const saved = JSON.parse(localStorage.getItem('outletx_cart') || '[]');
+      if (Array.isArray(saved)) setCart(saved.filter((item) =>
+        item && Number.isSafeInteger(item.id) && typeof item.size === 'string' &&
+        Number.isInteger(item.quantity) && item.quantity > 0
+      ));
+    } catch {
+      // Invalid or disabled browser storage must not break the bag.
+    } finally {
+      setHydrated(true);
+    }
   }, []);
 
   useEffect(() => {

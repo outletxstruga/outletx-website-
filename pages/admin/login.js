@@ -1,3 +1,4 @@
+import SiteLink from '../../components/SiteLink';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -21,7 +22,7 @@ export default function AdminLogin() {
 
   return <div className="admin-login-page">
     <Head><title>Sign in | OutletX Admin</title></Head>
-    <section className="admin-login-brand"><a href="/">OUTLET<span>X</span></a><div><p>STORE MANAGEMENT</p><h1>Everything your store needs, in one place.</h1><span>Manage products, stock, customer orders, and homepage content securely.</span></div></section>
-    <main className="admin-login-main"><form onSubmit={login} className="admin-login-card"><p>PRIVATE ADMIN AREA</p><h2>Welcome back</h2><span>Enter your admin password to continue.</span><label htmlFor="password">Password</label><input id="password" type="password" autoComplete="current-password" value={password} onChange={(event)=>setPassword(event.target.value)} placeholder="Your admin password" required autoFocus/>{error&&<div className="admin-alert">{error}</div>}<button className="admin-button red" disabled={loading}>{loading?'Signing in…':'Sign in securely'}</button><a href="/">← Back to the store</a></form></main>
+    <section className="admin-login-brand"><SiteLink href="/">OUTLET<span>X</span></SiteLink><div><p>STORE MANAGEMENT</p><h1>Everything your store needs, in one place.</h1><span>Manage products, stock, customer orders, and homepage content securely.</span></div></section>
+    <main className="admin-login-main"><form onSubmit={login} className="admin-login-card"><p>PRIVATE ADMIN AREA</p><h2>Welcome back</h2><span>Enter your admin password to continue.</span><label htmlFor="password">Password</label><input id="password" type="password" autoComplete="current-password" value={password} onChange={(event)=>setPassword(event.target.value)} placeholder="Your admin password" required autoFocus/>{error&&<div className="admin-alert">{error}</div>}<button className="admin-button red" disabled={loading}>{loading?'Signing in…':'Sign in securely'}</button><SiteLink href="/">← Back to the store</SiteLink></form></main>
   </div>;
 }

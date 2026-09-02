@@ -1,3 +1,5 @@
+import { useRouter } from 'next/router';
+import { AdminSessionProvider } from '../context/AdminSessionContext';
 import { CartProvider } from '../context/CartContext';
 import { StoreProvider } from '../context/StoreContext';
 import { LanguageProvider } from '../context/LanguageContext';
@@ -14,13 +16,14 @@ import '../styles/checkout.css';
 import '../styles/info.css';
 
 function MyApp({ Component, pageProps }) {
+  const router = useRouter();
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <StoreProvider><CartProvider>
-          <Component {...pageProps} />
+        <AdminSessionProvider><StoreProvider><CartProvider>
+          <Component key={router.asPath.split('#')[0]} {...pageProps} />
           <CartDrawer />
-        </CartProvider></StoreProvider>
+        </CartProvider></StoreProvider></AdminSessionProvider>
       </LanguageProvider>
     </ThemeProvider>
   );
