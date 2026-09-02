@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
-import products from '../data/products';
+import { useStore } from '../context/StoreContext';
 
-export default function RecentlyViewedHome() {
+export default function RecentlyViewedHome() {const { products, content, loading, error } = useStore();
   const [recentProducts, setRecentProducts] = useState([]);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function RecentlyViewedHome() {
       const prods = ids.map(id => products.find(p => p.id === id)).filter(Boolean);
       setRecentProducts(prods);
     }
-  }, []);
+  }, [products]);
 
   if (recentProducts.length < 2) return null;
 

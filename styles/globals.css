@@ -519,6 +519,75 @@ a {
 }
 
 @media (max-width: 768px) {
+  .about-header-inner {
+    height: 58px !important;
+    padding: 0 16px !important;
+  }
+
+  .about-desktop-nav,
+  .about-header-cta {
+    display: none !important;
+  }
+
+  .about-section {
+    padding: 42px 18px !important;
+  }
+
+  .about-actions {
+    flex-direction: column !important;
+  }
+
+  .about-actions a {
+    text-align: center;
+  }
+
+  .about-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 28px 18px !important;
+  }
+
+  .contact-header-inner {
+    height: 58px !important;
+    padding: 0 16px !important;
+  }
+
+  .contact-desktop-nav,
+  .contact-header-cta {
+    display: none !important;
+  }
+
+  .contact-menu-button {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 8px !important;
+  }
+
+  .contact-map {
+    height: 280px !important;
+  }
+
+  .contact-section {
+    padding: 42px 18px !important;
+  }
+
+  .contact-title {
+    font-size: 30px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+
+  .contact-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 28px 18px !important;
+  }
+}
+
+@media (max-width: 768px) {
   .store-grid {
     grid-template-columns: 1fr;
     gap: 30px;

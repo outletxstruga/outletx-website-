@@ -1,50 +1,31 @@
-import fs from 'fs';
-import path from 'path';
+import { requireAdmin } from '../../../lib/adminAuth';
+import { getDatabase } from '../../../lib/supabase';
+import { getProducts, validateProduct } from '../../../lib/store';
 
-const productsFile = path.join(process.cwd(), 'data', 'products.js');
-
-function getProducts() {
+export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+  if (!requireAdmin(req, res)) return;
+  if (!['GET', 'POST', 'PUT', 'DELETE'].includes(req.method)) return res.status(405).json({ error: 'Method not allowed' });
   try {
-    const content = fs.readFileSync(productsFile, 'utf8');
-    const match = content.match(/const products = (\[[\s\S]*\]);/);
-    if (match) return JSON.parse(match[1]);
-    return [];
+    if (req.method === 'GET') return res.status(200).json(await getProducts());
+    const database = getDatabase();
+    const id = Number(req.body?.id);
+    const revision = req.body?._revision;
+    if (req.method !== 'POST' && (!Number.isSafeInteger(id) || !Number.isInteger(revision))) return res.status(400).json({ error: 'Reload the product before saving.' });
+    let product;
+    if (req.method !== 'DELETE') {
+      try { product = validateProduct(req.body); }
+      catch (error) { return res.status(400).json({ error: error.message }); }
+    }
+    const table = database.from('outletx_products');
+    const query = req.method === 'POST' ? table.insert({ data: product }) :
+      req.method === 'PUT' ? table.update({ data: product, revision: revision + 1 }).eq('id', id).eq('revision', revision) :
+      table.delete().eq('id', id).eq('revision', revision);
+    const { data, error } = await query.select('id');
+    if (error) throw error;
+    if (!data.length) return res.status(409).json({ error: 'This product changed in another window. Reload it before saving.' });
+    return res.status(200).json({ success: true });
   } catch {
-    return [];
+    return res.status(503).json({ error: 'Product storage is unavailable. No change was confirmed. Please try again.' });
   }
 }
-
-function saveProducts(products) {
-  const content = `const products = ${JSON.stringify(products, null, 2)};\n\nmodule.exports = products;`;
-  fs.writeFileSync(productsFile, content);
-}
-
-export default function handler(req, res) {
-  if (req.method === 'GET') {
-    return res.status(200).json(getProducts());
-  }
-  if (req.method === 'POST') {
-    const products = getProducts();
-    const newProduct = { id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1, ...req.body, inStock: true, featured: false };
-    products.push(newProduct);
-    saveProducts(products);
-    return res.status(200).json({ success: true, product: newProduct });
-  }
-  if (req.method === 'PUT') {
-    const products = getProducts();
-    const { id, ...updates } = req.body;
-    const index = products.findIndex(p => p.id === id);
-    if (index === -1) return res.status(404).json({ error: 'Not found' });
-    products[index] = { ...products[index], ...updates };
-    saveProducts(products);
-    return res.status(200).json({ success: true });
-  }
-  if (req.method === 'DELETE') {
-    const products = getProducts();
-    const { id } = req.body;
-    saveProducts(products.filter(p => p.id !== id));
-    return res.status(200).json({ success: true });
-  }
-  return res.status(405).json({ error: 'Method not allowed' });
-}
-

@@ -1,0 +1,8 @@
+{
+  "slides": [
+    {"image":"/images/products/7cb29c20-38f9-4025-9e04-4d1c1b3ac7e4.png","title":"BRANDED SPORTSWEAR.","subtitle":"OUTLET PRICES.","tag":"Dua Mall, Struga — Outlet Store","description":"Authentic branded sportswear at outlet prices, with discounts up to 70%.","link":"/products","linkText":"Shop all deals","link2":"/products?gender=men","linkText2":"Men","link3":"/products?gender=women","linkText3":"Women"},
+    {"image":"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1400&h=700&fit=crop","title":"NEW COLLECTION.","subtitle":"JUST LANDED.","tag":"Fresh stock — Limited quantities","description":"Explore the latest arrivals in footwear, clothing, and accessories.","link":"/products","linkText":"Shop new","link2":"/products?category=shoes","linkText2":"Shoes","link3":"/products?gender=kids","linkText3":"Kids"},
+    {"image":"https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=1400&h=700&fit=crop","title":"UP TO 70% OFF.","subtitle":"OUTLET DEALS.","tag":"Limited time","description":"Discover the biggest current discounts across authentic brands.","link":"/products?sort=discount","linkText":"Shop sale","link2":"/products?gender=women","linkText2":"Women","link3":"/products?gender=men","linkText3":"Men"}
+  ],
+  "settings": {"instagram":"@OutletXstruga","address":"Dua Mall, Struga","country":"North Macedonia","deliveryFee":150,"freeDeliveryOver":3000,"openingHours":{"weekdays":"09:00 - 21:00","sunday":"10:00 - 20:00"}}
+}
