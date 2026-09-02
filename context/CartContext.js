@@ -1,9 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
+import { useStore } from './StoreContext';
+
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
+  const [savedCart, setCart] = useState([]);
+  const [hydrated, setHydrated] = useState(false);
+  const {products}=useStore();
+  const cart=savedCart.map(item=>({...item,...(products.find(p=>p.id===item.id)||{}),size:item.size,quantity:item.quantity}));
   const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
@@ -12,8 +17,8 @@ export function CartProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('outletx_cart', JSON.stringify(cart));
-  }, [cart]);
+    if(hydrated)try{localStorage.setItem('outletx_cart', JSON.stringify(savedCart));}catch{}
+  }, [savedCart, hydrated]);
 
   const addToCart = (product, size) => {
     setCart(prev => {
@@ -43,11 +48,13 @@ export function CartProvider({ children }) {
     ));
   };
 
+  const clearCart = () => setCart([]);
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce((sum, item) => sum + (item.newPrice * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, cartCount, cartTotal, cartOpen, setCartOpen }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal, cartOpen, setCartOpen }}>
       {children}
     </CartContext.Provider>
   );

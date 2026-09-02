@@ -1,82 +1,70 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
+import { useEffect, useMemo, useState } from 'react';
+import AdminLayout, { EmptyState, StatCard, StatusBadge } from '../../components/admin/AdminLayout';
+
+const money = (value) => `${Number(value || 0).toLocaleString('en-US')} MKD`;
+const dateText = (value) => value ? new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
 export default function AdminDashboard() {
-  const router = useRouter();
-  const [authorized, setAuthorized] = useState(false);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-    if (!token) { router.push('/admin/login'); return; }
-    setAuthorized(true);
-    fetchProducts();
-    fetchOrders();
-    const interval = setInterval(() => { fetchProducts(); fetchOrders(); }, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const load = async () => {
+    try {
+      const [productResponse, orderResponse] = await Promise.all([fetch('/api/admin/products'), fetch('/api/orders')]);
+      if (orderResponse.status === 401) return;
+      const productData = await productResponse.json();
+      const orderData = await orderResponse.json();
+      setProducts(Array.isArray(productData) ? productData : []);
+      setOrders(Array.isArray(orderData) ? orderData : []);
+    } catch { setError('The dashboard could not load the latest data. Refresh the page to try again.'); }
+  };
 
-  const fetchProducts = async () => { const r = await fetch('/api/admin/products'); setProducts(await r.json()); };
-  const fetchOrders = async () => { const r = await fetch('/api/orders'); setOrders(await r.json()); };
-  const updateOrderStatus = async (id, status) => { await fetch('/api/orders', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) }); fetchOrders(); };
-  const handleLogout = () => { localStorage.removeItem('admin_token'); router.push('/admin/login'); };
-  if (!authorized) return null;
+  useEffect(() => { load(); }, []);
 
-  const totalProducts = products.length;
-  const inStock = products.filter(p => p.inStock).length;
-  const lowStock = products.filter(p => p.inStock && p.sizes && p.sizes.some(s => s.stock > 0 && s.stock <= 3));
-  const outOfStock = products.filter(p => !p.inStock || !p.sizes || p.sizes.every(s => (s.stock || 0) === 0));
-  const pendingOrders = orders.filter(o => o.status === 'pending');
-  const todayOrders = orders.filter(o => new Date(o.createdAt || o.created_at).toDateString() === new Date().toDateString());
-  const todayRevenue = todayOrders.reduce((s, o) => s + (o.total || 0), 0);
-  const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
-  const totalCustomers = [...new Set(orders.map(o => o.customer_phone || o.customerInfo?.phone || o.customer_email || o.customerInfo?.email))].filter(Boolean).length;
-
-  const displayOrders = activeTab === 'overview' ? orders.slice(0, 10) : orders.filter(o => o.status === activeTab);
-  const statusBg = (s) => s === 'shipped' ? '#F0FDF4' : s === 'delivered' ? '#EFF6FF' : '#FFF7ED';
-  const statusColor = (s) => s === 'shipped' ? '#16A34A' : s === 'delivered' ? '#2563EB' : '#EA580C';
+  const metrics = useMemo(() => {
+    const pending = orders.filter((order) => ['pending', 'confirmed', 'processing'].includes(order.status || 'pending'));
+    const revenue = orders.filter((order) => order.status !== 'cancelled').reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const stock = products.reduce((sum, product) => sum + (product.sizes || []).reduce((qty, size) => qty + Number(size.stock || 0), 0), 0);
+    const lowStock = products.filter((product) => {
+      const qty = (product.sizes || []).reduce((sum, size) => sum + Number(size.stock || 0), 0);
+      return qty <= 5;
+    });
+    return { pending, revenue, stock, lowStock };
+  }, [orders, products]);
 
   return (
-    <>
-      <Head><title>Dashboard | OUTLETX Admin</title></Head>
-      <div style={{minHeight:'100vh',background:'#F8F8F8',fontFamily:'Inter, sans-serif'}}>
-        <div style={{background:'#FFF',borderBottom:'1px solid #EEE',padding:'0 32px',height:60,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div style={{display:'flex',alignItems:'center',gap:32}}>
-            <h1 style={{fontFamily:'Montserrat, sans-serif',fontSize:16,fontWeight:900,letterSpacing:-0.5,margin:0}}>OUTLET<span style={{color:'#DC2626'}}>X</span></h1>
-            <nav style={{display:'flex',gap:24}}>
-              <a href="/admin" style={{color:'#000',textDecoration:'none',fontSize:12,fontWeight:700}}>Dashboard</a>
-              <a href="/admin/products" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Products</a>
-              <a href="/admin/orders" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Orders</a>
-<a href="/admin/order-form" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Order Form</a>
-              <a href="/admin/customers" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Customers</a>
-              <a href="/admin/settings" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Settings</a>
-            </nav>
-          </div>
-          <div style={{display:'flex',gap:12,alignItems:'center'}}>
-            <a href="/" target="_blank" style={{color:'#888',textDecoration:'none',fontSize:11,fontWeight:600}}>View Site →</a>
-            <button onClick={handleLogout} style={{background:'#000',color:'#FFF',border:'none',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',padding:'7px 14px',cursor:'pointer',fontFamily:'Inter, sans-serif',borderRadius:2}}>Logout</button>
-          </div>
-        </div>
+    <AdminLayout title="Overview" action={<a className="admin-button red" href="/admin/products">+ Add product</a>}>
+      {error && <div className="admin-alert">{error}</div>}
+      <section className="admin-grid-stats">
+        <StatCard label="Orders to handle" value={metrics.pending.length} detail="Pending or in progress" tone="orange" />
+        <StatCard label="Total sales" value={money(metrics.revenue)} detail={`${orders.length} orders recorded`} tone="green" />
+        <StatCard label="Products" value={products.length} detail={`${metrics.stock} units in stock`} />
+        <StatCard label="Low stock" value={metrics.lowStock.length} detail="Products with 5 units or fewer" tone="red" />
+      </section>
 
-        <div style={{maxWidth:1400,margin:'0 auto',padding:'28px 24px'}}>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:12,marginBottom:28}}>
-            {[{l:'Products',v:totalProducts,c:'#000'},{l:'In Stock',v:inStock,c:'#16A34A'},{l:'Low Stock',v:lowStock.length,c:'#EA580C',a:lowStock.length>0},{l:'Out of Stock',v:outOfStock.length,c:'#DC2626',a:outOfStock.length>0},{l:'Total Orders',v:orders.length,c:'#2563EB'},{l:'Pending',v:pendingOrders.length,c:'#EA580C',a:pendingOrders.length>0},{l:'Today Revenue',v:todayRevenue.toLocaleString()+' MKD',c:'#16A34A'},{l:'Total Revenue',v:totalRevenue.toLocaleString()+' MKD',c:'#000'},{l:'Customers',v:totalCustomers,c:'#000'}].map(s=>(<div key={s.l} style={{background:s.a?'#FFF7ED':'#FFF',padding:'16px 18px',borderRadius:2,border:'1px solid #F0F0F0',borderLeft:`3px solid ${s.c}`}}><p style={{fontFamily:'Montserrat, sans-serif',fontSize:26,fontWeight:900,margin:'0 0 4px',color:s.c}}>{s.v}</p><p style={{color:'#999',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',margin:0}}>{s.l}</p></div>))}
-          </div>
+      <div className="admin-split">
+        <section className="admin-panel">
+          <div className="admin-panel-head"><div><h2>Recent orders</h2><p>Your latest customer orders</p></div><a href="/admin/orders" className="admin-button secondary">View all</a></div>
+          {orders.length ? <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>
+            {orders.slice(0, 6).map((order) => <tr key={order.id}><td><strong>#{order.id}</strong><br/><small>{order.product_name || 'Product'}</small></td><td>{order.customer_name || '—'}<br/><small>{order.customer_city || ''}</small></td><td><strong>{money(order.total)}</strong></td><td><StatusBadge status={order.status}/></td><td>{dateText(order.created_at)}</td></tr>)}
+          </tbody></table></div> : <EmptyState title="No orders yet" text="New customer orders will appear here automatically." />}
+        </section>
 
-          {lowStock.length>0&&(<div style={{background:'#FFF7ED',border:'1px solid #FED7AA',padding:18,borderRadius:2,marginBottom:24}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><div><h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:13,fontWeight:900,color:'#EA580C',margin:0}}>Low Stock Alert ({lowStock.length})</h2><p style={{color:'#9A3412',fontSize:11,margin:'2px 0 0'}}>Restock needed</p></div><a href="/admin/products" style={{color:'#EA580C',textDecoration:'none',fontSize:11,fontWeight:700}}>Manage →</a></div><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:8}}>{lowStock.map(p=><div key={p.id} style={{background:'#FFF',padding:12,borderRadius:2,display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><p style={{fontWeight:700,fontSize:11,textTransform:'uppercase',margin:'0 0 2px'}}>{p.name}</p><p style={{color:'#DC2626',fontSize:10,fontWeight:700,textTransform:'uppercase',margin:0}}>{p.brand}</p></div><span style={{background:'#FEF2F2',color:'#DC2626',fontWeight:900,fontSize:20,padding:'6px 14px',borderRadius:2}}>{p.sizes.reduce((s,x)=>s+(x.stock||0),0)}</span></div>)}</div></div>)}
-
-          <div style={{background:'#FFF',border:'1px solid #F0F0F0',borderRadius:2,overflow:'hidden'}}>
-            <div style={{padding:'16px 20px',borderBottom:'1px solid #F0F0F0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-              <div style={{display:'flex',gap:0}}>{['overview','pending','shipped','delivered'].map(tab=><button key={tab} onClick={()=>setActiveTab(tab)} style={{padding:'7px 16px',cursor:'pointer',fontWeight:700,fontSize:10,letterSpacing:1,textTransform:'uppercase',background:'none',border:'none',color:activeTab===tab?'#DC2626':'#999',borderBottom:activeTab===tab?'2px solid #DC2626':'2px solid transparent',fontFamily:'Inter, sans-serif'}}>{tab}</button>)}</div>
-              <a href="/admin/orders" style={{color:'#000',textDecoration:'none',fontSize:11,fontWeight:700}}>View All →</a>
-            </div>
-            {displayOrders.length===0?<p style={{color:'#999',fontSize:12,textAlign:'center',padding:40,margin:0}}>No orders</p>:displayOrders.map(o=>(<div key={o.id} style={{padding:'12px 20px',borderBottom:'1px solid #F5F5F5',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap'}}><span style={{fontWeight:700,fontSize:12,minWidth:70}}>#{String(o.id).slice(-6)}</span><span style={{color:'#999',fontSize:10,minWidth:80}}>{new Date(o.createdAt||o.created_at).toLocaleDateString()}</span><span style={{fontWeight:600,fontSize:12,flex:1,minWidth:100}}>{o.customer_name||o.customerInfo?.fullName||'Unknown'}</span><span style={{fontSize:11,minWidth:120}}>{o.product_name||o.product?.name||'-'}</span><span style={{fontWeight:700,fontSize:12,minWidth:70}}>{o.total||0} MKD</span><span style={{background:statusBg(o.status),color:statusColor(o.status),padding:'2px 8px',fontSize:9,fontWeight:700,textTransform:'uppercase',borderRadius:2}}>{o.status||'Pending'}</span>{o.status==='pending'&&<button onClick={()=>updateOrderStatus(o.id,'shipped')} style={{background:'#000',color:'#FFF',border:'none',padding:'4px 12px',fontSize:9,fontWeight:700,cursor:'pointer',borderRadius:2}}>Ship</button>}{o.status==='shipped'&&<button onClick={()=>updateOrderStatus(o.id,'delivered')} style={{background:'#2563EB',color:'#FFF',border:'none',padding:'4px 12px',fontSize:9,fontWeight:700,cursor:'pointer',borderRadius:2}}>Deliver</button>}</div>))}
-          </div>
-        </div>
+        <section className="admin-panel">
+          <div className="admin-panel-head"><div><h2>Stock attention</h2><p>Items that may need restocking</p></div></div>
+          {metrics.lowStock.length ? <div style={{padding:12}}>{metrics.lowStock.slice(0, 7).map((product) => {
+            const qty = (product.sizes || []).reduce((sum, size) => sum + Number(size.stock || 0), 0);
+            return <a href={`/admin/products?search=${encodeURIComponent(product.sku || product.name)}`} key={product.id} style={{display:'flex',alignItems:'center',gap:12,padding:10,textDecoration:'none',color:'#171717',borderBottom:'1px solid #eee'}}><img src={product.images?.[0]} alt="" style={{width:44,height:44,objectFit:'contain',background:'#f4f4f4'}}/><span style={{flex:1,fontSize:11}}><b style={{display:'block',textTransform:'uppercase'}}>{product.name}</b><small style={{color:'#888'}}>{product.brand} · {product.sku}</small></span><strong style={{color:qty === 0 ? '#c82027' : '#e47a19'}}>{qty}</strong></a>;
+          })}</div> : <EmptyState title="Stock looks healthy" text="No products are currently below the low-stock threshold." />}
+        </section>
       </div>
-    </>
+
+      <section className="admin-card-grid">
+        <a className="admin-card" href="/admin/orders" style={{textDecoration:'none',color:'#171717'}}><b>Process orders</b><p style={{color:'#777',fontSize:12,lineHeight:1.6}}>Confirm, ship, and complete customer orders.</p><span style={{color:'#e31b23',fontSize:11,fontWeight:800}}>Open orders →</span></a>
+        <a className="admin-card" href="/admin/products" style={{textDecoration:'none',color:'#171717'}}><b>Manage inventory</b><p style={{color:'#777',fontSize:12,lineHeight:1.6}}>Add products, images, sizes, prices, and stock.</p><span style={{color:'#e31b23',fontSize:11,fontWeight:800}}>Open products →</span></a>
+        <a className="admin-card" href="/admin/slider" style={{textDecoration:'none',color:'#171717'}}><b>Update homepage</b><p style={{color:'#777',fontSize:12,lineHeight:1.6}}>Control the promotional slides customers see first.</p><span style={{color:'#e31b23',fontSize:11,fontWeight:800}}>Edit homepage →</span></a>
+      </section>
+    </AdminLayout>
   );
 }

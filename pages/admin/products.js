@@ -1,203 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import Head from 'next/head';
+import { adminRequest } from '../../lib/adminRequest';
+import AdminLayout, { EmptyState, StatCard } from '../../components/admin/AdminLayout';
 
-export default function AdminProducts() {
-  const router = useRouter();
-  const [authorized, setAuthorized] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [search, setSearch] = useState('');
-  const [filterBrand, setFilterBrand] = useState('all');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [filterStock, setFilterStock] = useState('all');
-  const [expandedProduct, setExpandedProduct] = useState(null);
-  const [form, setForm] = useState({
-    brand: '', name: '', sku: '', category: '', subcategory: '',
-    gender: 'Unisex', ageGroup: '', oldPrice: '', newPrice: '',
-    color: '', description: '', images: '', featured: false,
-    sizes: [{ size: '', stock: 1 }],
-  });
+const blank={brand:'',name:'',sku:'',category:'Shoes',subcategory:'',gender:'Men',oldPrice:'',newPrice:'',color:'',description:'',images:[],sizes:[{size:'',stock:0}],featured:false,inStock:true};
+const totalStock=(product)=>(product.sizes||[]).reduce((sum,size)=>sum+Number(size.stock||0),0);
 
-  useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-    if (!token) { router.push('/admin/login'); return; }
-    setAuthorized(true);
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    const res = await fetch('/api/admin/products');
-    const data = await res.json();
-    setProducts(data);
-  };
-
-  const handleLogout = () => { localStorage.removeItem('admin_token'); router.push('/admin/login'); };
-
-  const resetForm = () => {
-    setForm({ brand: '', name: '', sku: '', category: '', subcategory: '', gender: 'Unisex', ageGroup: '', oldPrice: '', newPrice: '', color: '', description: '', images: '', featured: false, sizes: [{ size: '', stock: 1 }] });
-    setEditingProduct(null); setShowForm(false);
-  };
-
-  const handleEdit = (product) => {
-    setForm({
-      brand: product.brand, name: product.name, sku: product.sku || '',
-      category: product.category, subcategory: product.subcategory || '',
-      gender: product.gender, ageGroup: product.ageGroup || '',
-      oldPrice: product.oldPrice, newPrice: product.newPrice,
-      color: product.color || '', description: product.description || '',
-      images: Array.isArray(product.images) ? product.images.join(', ') : product.images || '',
-      featured: product.featured || false,
-      sizes: product.sizes && product.sizes.length > 0 ? product.sizes.map(s => ({ size: s.size || s, stock: s.stock || 1 })) : [{ size: '', stock: 1 }],
-    });
-    setEditingProduct(product); setShowForm(true);
-  };
-
-  const addSizeRow = () => setForm({ ...form, sizes: [...form.sizes, { size: '', stock: 1 }] });
-  const removeSizeRow = (i) => setForm({ ...form, sizes: form.sizes.filter((_, idx) => idx !== i) });
-  const updateSize = (i, field, value) => { const u = [...form.sizes]; u[i][field] = field === 'stock' ? parseInt(value) || 0 : value; setForm({ ...form, sizes: u }); };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0]; if (!file) return;
-    setUploading(true); const fd = new FormData(); fd.append('file', file);
-    const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.url) setForm(p => ({ ...p, images: p.images ? `${p.images}, ${data.url}` : data.url }));
-    setUploading(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validSizes = form.sizes.filter(s => s.size);
-    const totalStock = validSizes.reduce((sum, s) => sum + (s.stock || 0), 0);
-    const pd = { ...form, oldPrice: parseInt(form.oldPrice), newPrice: parseInt(form.newPrice), discount: Math.round(((parseInt(form.oldPrice) - parseInt(form.newPrice)) / parseInt(form.oldPrice)) * 100), sizes: validSizes, images: form.images.split(',').map(s => s.trim()).filter(Boolean), ageGroup: form.ageGroup || null, inStock: totalStock > 0 };
-    if (editingProduct) await fetch('/api/admin/products', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editingProduct.id, ...pd }) });
-    else await fetch('/api/admin/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pd) });
-    resetForm(); fetchProducts();
-  };
-
-  const handleDelete = async (p) => { if (!confirm(`Delete "${p.name}"?`)) return; await fetch('/api/admin/products', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id }) }); fetchProducts(); };
-
-  const updateSizeStock = async (p, si, d) => {
-    const us = [...p.sizes]; us[si] = { ...us[si], stock: Math.max(0, (us[si].stock || 0) + d) };
-    const ts = us.reduce((s, x) => s + (x.stock || 0), 0);
-    await fetch('/api/admin/products', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, sizes: us, inStock: ts > 0 }) });
-    fetchProducts();
-  };
-
-  if (!authorized) return null;
-
-  const brands = [...new Set(products.map(p => p.brand))].sort();
-  const cats = [...new Set(products.map(p => p.category))].sort();
-  let filtered = products;
-  if (search) { const q = search.toLowerCase(); filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)); }
-  if (filterBrand !== 'all') filtered = filtered.filter(p => p.brand === filterBrand);
-  if (filterCategory !== 'all') filtered = filtered.filter(p => p.category === filterCategory);
-  if (filterStock === 'low') filtered = filtered.filter(p => p.inStock && p.sizes && p.sizes.some(s => s.stock > 0 && s.stock <= 3));
-  if (filterStock === 'out') filtered = filtered.filter(p => !p.inStock || !p.sizes || p.sizes.every(s => (s.stock || 0) === 0));
-  if (filterStock === 'in') filtered = filtered.filter(p => p.inStock && p.sizes && p.sizes.some(s => s.stock > 3));
-
-  return (
-    <>
-      <Head><title>Products | OUTLETX Admin</title></Head>
-      <div style={{minHeight:'100vh',background:'#F8F8F8',fontFamily:'Inter, sans-serif'}}>
-        <div style={{background:'#FFF',borderBottom:'1px solid #EEE',padding:'0 32px',height:60,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div style={{display:'flex',alignItems:'center',gap:32}}>
-            <h1 style={{fontFamily:'Montserrat, sans-serif',fontSize:16,fontWeight:900,letterSpacing:-0.5,margin:0}}>OUTLET<span style={{color:'#DC2626'}}>X</span></h1>
-            <nav style={{display:'flex',gap:24}}>
-              <a href="/admin" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Dashboard</a>
-              <a href="/admin/products" style={{color:'#000',textDecoration:'none',fontSize:12,fontWeight:700}}>Products</a>
-              <a href="/admin/orders" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Orders</a>
-              <a href="/admin/customers" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Customers</a>
-              <a href="/admin/settings" style={{color:'#888',textDecoration:'none',fontSize:12,fontWeight:600}}>Settings</a>
-            </nav>
-          </div>
-          <div style={{display:'flex',gap:12,alignItems:'center'}}>
-            <button onClick={()=>{resetForm();setShowForm(true)}} style={{background:'#DC2626',color:'#FFF',border:'none',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',padding:'7px 14px',cursor:'pointer',fontFamily:'Inter, sans-serif',borderRadius:2}}>+ Add Product</button>
-            <button onClick={handleLogout} style={{background:'#000',color:'#FFF',border:'none',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',padding:'7px 14px',cursor:'pointer',fontFamily:'Inter, sans-serif',borderRadius:2}}>Logout</button>
-          </div>
-        </div>
-
-        <div style={{maxWidth:1400,margin:'0 auto',padding:'28px 24px'}}>
-          {showForm && (
-            <div style={{background:'#FFF',padding:28,marginBottom:24,border:'1px solid #F0F0F0',borderRadius:2}}>
-              <h2 style={{fontFamily:'Montserrat, sans-serif',fontSize:15,fontWeight:900,letterSpacing:-0.5,textTransform:'uppercase',marginBottom:20}}>{editingProduct?'Edit Product':'Add New Product'}</h2>
-              <form onSubmit={handleSubmit}>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
-                  {[{l:'Brand *',v:form.brand,f:'brand',ph:'Nike'},{l:'Name *',v:form.name,f:'name',ph:'Air Max 90'},{l:'SKU *',v:form.sku,f:'sku',ph:'DM0029-101'}].map(f=> <div key={f.f}><label style={L}>{f.l}</label><input required style={I} value={f.v} onChange={e=>setForm({...form,[f.f]:e.target.value})} placeholder={f.ph}/></div>)}
-                  <div><label style={L}>Category *</label><select required style={I} value={form.category} onChange={e=>setForm({...form,category:e.target.value})}><option value="">Select...</option><option>Shoes</option><option>Shirts</option><option>Hoodies</option><option>Jackets</option><option>Pants</option><option>Shorts</option><option>Swimwear</option><option>Accessories</option></select></div>
-                  <div><label style={L}>Subcategory</label><input style={I} value={form.subcategory} onChange={e=>setForm({...form,subcategory:e.target.value})} placeholder="Running"/></div>
-                  <div><label style={L}>Gender *</label><select required style={I} value={form.gender} onChange={e=>setForm({...form,gender:e.target.value})}><option>Men</option><option>Women</option><option>Kids</option><option>Unisex</option></select></div>
-                  <div><label style={L}>Age Group</label><select style={I} value={form.ageGroup} onChange={e=>setForm({...form,ageGroup:e.target.value})}><option value="">None</option><option value="0-3">0-3</option><option value="4-8">4-8</option><option value="9-14">9-14</option></select></div>
-                  <div><label style={L}>Featured</label><select style={I} value={form.featured?'yes':'no'} onChange={e=>setForm({...form,featured:e.target.value==='yes'})}><option value="no">No</option><option value="yes">Yes — Homepage</option></select></div>
-                  <div><label style={L}>Old Price (MKD)*</label><input required type="number" style={I} value={form.oldPrice} onChange={e=>setForm({...form,oldPrice:e.target.value})}/></div>
-                  <div><label style={L}>New Price (MKD)*</label><input required type="number" style={I} value={form.newPrice} onChange={e=>setForm({...form,newPrice:e.target.value})}/></div>
-                  <div><label style={L}>Color</label><input style={I} value={form.color} onChange={e=>setForm({...form,color:e.target.value})} placeholder="Black/White"/></div>
-                  <div><label style={L}>Description</label><textarea rows={2} style={I} value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></div>
-                  <div><label style={L}>Images</label><input style={I} value={form.images} onChange={e=>setForm({...form,images:e.target.value})} placeholder="URLs"/><input type="file" accept="image/*" onChange={handleImageUpload} style={{marginTop:6,fontSize:11}} disabled={uploading}/>{uploading&&<span style={{fontSize:10,color:'#999'}}>Uploading...</span>}</div>
-                </div>
-                <div style={{marginTop:20}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{...L,marginBottom:0}}>Sizes & Stock *</label><button type="button" onClick={addSizeRow} style={{background:'#000',color:'#FFF',border:'none',fontSize:10,fontWeight:700,padding:'5px 12px',cursor:'pointer',borderRadius:2}}>+ Add Size</button></div>
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:6}}>
-                    {form.sizes.map((s,i)=> <div key={i} style={{display:'flex',gap:4,alignItems:'center'}}><input required style={{...I,width:55}} value={s.size} onChange={e=>updateSize(i,'size',e.target.value)} placeholder="42"/><input type="number" min="0" style={{...I,width:45}} value={s.stock} onChange={e=>updateSize(i,'stock',e.target.value)} placeholder="Qty"/>{form.sizes.length>1&&<button type="button" onClick={()=>removeSizeRow(i)} style={{background:'#DC2626',color:'#FFF',border:'none',fontSize:14,cursor:'pointer',width:22,height:22,lineHeight:1,borderRadius:2}}>&times;</button>}</div>)}
-                  </div>
-                  <p style={{fontSize:10,color:'#999',marginTop:6}}>Total: {form.sizes.reduce((s,x)=>s+(parseInt(x.stock)||0),0)}</p>
-                </div>
-                <div style={{display:'flex',gap:10,marginTop:20}}>
-                  <button type="submit" style={{background:'#DC2626',color:'#FFF',border:'none',fontSize:11,fontWeight:700,letterSpacing:1,textTransform:'uppercase',padding:'10px 24px',cursor:'pointer',borderRadius:2}}>{editingProduct?'Update':'Add Product'}</button>
-                  <button type="button" onClick={resetForm} style={{background:'#FFF',color:'#000',border:'1px solid #E5E5E5',fontSize:11,fontWeight:700,letterSpacing:1,textTransform:'uppercase',padding:'10px 24px',cursor:'pointer',borderRadius:2}}>Cancel</button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))',gap:10,marginBottom:24}}>
-            {[{l:'Total',v:products.length},{l:'In Stock',v:products.filter(p=>p.inStock).length},{l:'Low Stock',v:products.filter(p=>p.inStock&&p.sizes&&p.sizes.some(s=>s.stock>0&&s.stock<=3)).length},{l:'Out',v:products.filter(p=>!p.inStock||!p.sizes||p.sizes.every(s=>(s.stock||0)===0)).length}].map(s=><div key={s.l} style={{background:'#FFF',padding:'14px 16px',border:'1px solid #F0F0F0',borderRadius:2,textAlign:'center'}}><p style={{fontFamily:'Montserrat, sans-serif',fontSize:22,fontWeight:900,margin:'0 0 2px'}}>{s.v}</p><p style={{color:'#999',fontSize:9,fontWeight:700,letterSpacing:1,textTransform:'uppercase',margin:0}}>{s.l}</p></div>)}
-          </div>
-
-          <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap',alignItems:'center'}}>
-            <input type="text" placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)} style={{flex:1,minWidth:160,padding:'7px 14px',border:'1px solid #E5E5E5',fontSize:12,fontFamily:'Inter, sans-serif',outline:'none',borderRadius:2,background:'#FFF'}}/>
-            <select value={filterBrand} onChange={e=>setFilterBrand(e.target.value)} style={S}><option value="all">All Brands</option>{brands.map(b=><option key={b} value={b}>{b}</option>)}</select>
-            <select value={filterCategory} onChange={e=>setFilterCategory(e.target.value)} style={S}><option value="all">All Categories</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select>
-            <select value={filterStock} onChange={e=>setFilterStock(e.target.value)} style={S}><option value="all">All Stock</option><option value="in">In Stock</option><option value="low">Low Stock</option><option value="out">Out</option></select>
-            <span style={{color:'#999',fontSize:11,whiteSpace:'nowrap'}}>{filtered.length} products</span>
-          </div>
-
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            {filtered.map(p=>{const ts=p.sizes?p.sizes.reduce((s,x)=>s+(x.stock||0),0):0;return(
-              <div key={p.id} style={{background:'#FFF',border:'1px solid #F0F0F0',borderRadius:2,overflow:'hidden'}}>
-                <div style={{display:'flex',alignItems:'center',padding:'12px 18px',cursor:'pointer',gap:14,flexWrap:'wrap'}} onClick={()=>setExpandedProduct(expandedProduct===p.id?null:p.id)}>
-                  {p.images?.[0]&&<img src={p.images[0]} alt="" style={{width:36,height:36,objectFit:'contain',background:'#F5F5F5',borderRadius:2}}/>}
-                  <span style={{fontWeight:700,fontSize:12,textTransform:'uppercase',flex:1,minWidth:140}}>{p.name}</span>
-                  <span style={{color:'#DC2626',fontWeight:700,fontSize:10,textTransform:'uppercase',minWidth:60}}>{p.brand}</span>
-                  <span style={{color:'#999',fontSize:10,minWidth:80}}>{p.sku}</span>
-                  <span style={{fontWeight:700,fontSize:12,minWidth:70}}>{p.newPrice} MKD</span>
-                  <span style={{color:p.featured?'#DC2626':'#CCC',fontSize:10,fontWeight:700,minWidth:20}}>{p.featured?'★':'☆'}</span>
-                  <span style={{color:ts<=5&&ts>0?'#DC2626':ts===0?'#CCC':'#16A34A',fontWeight:700,fontSize:12,minWidth:40}}>{ts}</span>
-                  <span style={{color:'#CCC',fontSize:14}}>{expandedProduct===p.id?'▾':'▸'}</span>
-                </div>
-                {expandedProduct===p.id&&(
-                  <div style={{borderTop:'1px solid #F0F0F0',padding:'14px 18px',background:'#FAFAFA'}}>
-                    <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:12}}>
-                      {p.sizes&&p.sizes.map((s,i)=><span key={i} style={{background:(s.stock||0)<=2?'#FEF2F2':'#F5F5F5',color:(s.stock||0)<=2?'#DC2626':'#000',padding:'4px 10px',fontSize:10,fontWeight:600,borderRadius:2,display:'inline-flex',alignItems:'center',gap:5}}>{s.size}: {s.stock||0}<button onClick={(e)=>{e.stopPropagation();updateSizeStock(p,i,-1)}} style={{background:'none',border:'none',cursor:'pointer',fontSize:12,padding:0,color:'#999'}}>-</button><button onClick={(e)=>{e.stopPropagation();updateSizeStock(p,i,1)}} style={{background:'none',border:'none',cursor:'pointer',fontSize:12,padding:0,color:'#999'}}>+</button></span>)}
-                    </div>
-                    <div style={{display:'flex',gap:8}}>
-                      <button onClick={(e)=>{e.stopPropagation();handleEdit(p)}} style={{background:'#000',color:'#FFF',border:'none',padding:'5px 14px',fontSize:10,fontWeight:700,cursor:'pointer',borderRadius:2}}>Edit</button>
-                      <button onClick={(e)=>{e.stopPropagation();handleDelete(p)}} style={{background:'#DC2626',color:'#FFF',border:'none',padding:'5px 14px',fontSize:10,fontWeight:700,cursor:'pointer',borderRadius:2}}>Delete</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )})}
-          </div>
-        </div>
-      </div>
-    </>
-  );
+export default function AdminProducts(){
+  const router=useRouter();const[products,setProducts]=useState([]);const[form,setForm]=useState(blank);const[editing,setEditing]=useState(null);const[open,setOpen]=useState(false);const[search,setSearch]=useState('');const[stock,setStock]=useState('all');const[category,setCategory]=useState('all');const[saving,setSaving]=useState(false);const[uploading,setUploading]=useState(false);const[message,setMessage]=useState('');
+  const load=async()=>{try{setProducts(await adminRequest('/api/admin/products'));}catch(error){setMessage(error.message);}};
+  useEffect(()=>{load();},[]);useEffect(()=>{if(router.query.search)setSearch(String(router.query.search));},[router.query.search]);
+  const categories=[...new Set(products.map((p)=>p.category).filter(Boolean))];
+  const visible=useMemo(()=>products.filter((product)=>{const q=search.toLowerCase();const matches=`${product.name} ${product.brand} ${product.sku}`.toLowerCase().includes(q);const qty=totalStock(product);return matches&&(category==='all'||product.category===category)&&(stock==='all'||(stock==='low'&&qty>0&&qty<=5)||(stock==='out'&&qty===0)||(stock==='available'&&qty>5));}),[products,search,category,stock]);
+  const startAdd=()=>{setEditing(null);setForm(blank);setOpen(true);};
+  const startEdit=(product)=>{setEditing(product);setForm({...blank,...product,images:product.images||[],sizes:product.sizes?.length?product.sizes:[{size:'',stock:0}]});setOpen(true);};
+  const upload=async(event)=>{const file=event.target.files?.[0];if(!file)return;if(file.size>4*1024*1024){setMessage('Choose an image under 4 MB.');return;}setUploading(true);try{const body=new FormData();body.append('file',file);const data=await adminRequest('/api/admin/upload',{method:'POST',body});setForm(current=>({...current,images:[...current.images,data.url]}));}catch(error){setMessage(error.message);}finally{setUploading(false);}};
+  const save=async(event)=>{event.preventDefault();setSaving(true);setMessage('');try{const payload={...form,oldPrice:Number(form.oldPrice),newPrice:Number(form.newPrice)};await adminRequest('/api/admin/products',{method:editing?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});await load();setOpen(false);setMessage(editing?'Product updated.':'Product added.');}catch(error){setMessage(error.message);}finally{setSaving(false);}};
+  const remove=async(product)=>{if(!window.confirm('Delete this product from the catalogue?'))return;try{await adminRequest('/api/admin/products',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:product.id,_revision:product._revision})});await load();}catch(error){setMessage(error.message);}};
+  const updateSize=(index,key,value)=>setForm((current)=>({...current,sizes:current.sizes.map((size,i)=>i===index?{...size,[key]:key==='stock'?Number(value):value}:size)}));
+  return <AdminLayout title="Products & stock" action={<button className="admin-button red" onClick={startAdd}>+ Add product</button>}>
+    {message&&<div className={`admin-alert ${message.includes('updated')||message.includes('added')?'admin-success':''}`}>{message}</div>}
+    <div className="admin-grid-stats"><StatCard label="Products" value={products.length} detail="Published catalogue"/><StatCard label="Units in stock" value={products.reduce((sum,p)=>sum+totalStock(p),0)} detail="Across all sizes" tone="green"/><StatCard label="Low stock" value={products.filter((p)=>totalStock(p)>0&&totalStock(p)<=5).length} detail="Five units or fewer" tone="orange"/><StatCard label="Out of stock" value={products.filter((p)=>totalStock(p)===0).length} detail="Needs attention" tone="red"/></div>
+    <div className="admin-toolbar"><input className="admin-input" placeholder="Search name, brand, or SKU…" value={search} onChange={(e)=>setSearch(e.target.value)}/><select className="admin-select" value={category} onChange={(e)=>setCategory(e.target.value)}><option value="all">All categories</option>{categories.map((item)=><option key={item}>{item}</option>)}</select><select className="admin-select" value={stock} onChange={(e)=>setStock(e.target.value)}><option value="all">All stock</option><option value="available">Well stocked</option><option value="low">Low stock</option><option value="out">Out of stock</option></select></div>
+    <section className="admin-panel"><div className="admin-panel-head"><div><h2>Catalogue</h2><p>{visible.length} matching products</p></div></div>{visible.length?<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Sizes</th><th>Stock</th><th></th></tr></thead><tbody>{visible.map((product)=>{const qty=totalStock(product);return <tr key={product.id}><td><div style={{display:'flex',gap:12,alignItems:'center'}}><img src={product.images?.[0]} alt="" style={{width:54,height:54,objectFit:'contain',background:'#f4f4f4'}}/><span><strong style={{textTransform:'uppercase'}}>{product.name}</strong><br/><small>{product.brand} · {product.sku||'No SKU'}</small></span></div></td><td>{product.category}<br/><small>{product.gender}</small></td><td><strong>{Number(product.newPrice).toLocaleString()} MKD</strong><br/><small>{product.discount||0}% off</small></td><td>{(product.sizes||[]).map((size)=>size.size).filter(Boolean).join(', ')||'—'}</td><td><strong style={{color:qty===0?'#c82027':qty<=5?'#d66b10':'#17724a'}}>{qty}</strong></td><td><div style={{display:'flex',gap:7}}><button className="admin-button secondary" onClick={()=>startEdit(product)}>Edit</button><button className="admin-button danger" onClick={()=>remove(product)}>Delete</button></div></td></tr>})}</tbody></table></div>:<EmptyState title="No matching products" text="Change the filters or add a new product." action={<button className="admin-button red" onClick={startAdd}>Add product</button>}/>}</section>
+    {open&&<div className="admin-modal"><form className="admin-modal-card" onSubmit={save}><header className="admin-modal-head"><h2>{editing?'Edit product':'Add product'}</h2><button type="button" aria-label="Close" onClick={()=>setOpen(false)}>×</button></header><div className="admin-modal-body">{message&&<p role="alert" className="admin-alert">{message}</p>}<div className="admin-form-grid">
+      {[['Brand','brand'],['Product name','name'],['SKU','sku'],['Subcategory','subcategory'],['Color','color']].map(([label,key])=><div className="admin-field" key={key}><label>{label}{['brand','name','sku'].includes(key)?' *':''}</label><input className="admin-input" required={['brand','name','sku'].includes(key)} value={form[key]} onChange={(e)=>setForm({...form,[key]:e.target.value})}/></div>)}
+      <div className="admin-field"><label>Category</label><select className="admin-select" value={form.category} onChange={(e)=>setForm({...form,category:e.target.value})}><option>Shoes</option><option>Clothing</option><option>Accessories</option></select></div><div className="admin-field"><label>Customer group</label><select className="admin-select" value={form.gender} onChange={(e)=>setForm({...form,gender:e.target.value})}><option>Men</option><option>Women</option><option>Kids</option><option>Unisex</option></select></div><div className="admin-field"><label>Original price (MKD)</label><input className="admin-input" type="number" min="0" required value={form.oldPrice} onChange={(e)=>setForm({...form,oldPrice:e.target.value})}/></div><div className="admin-field"><label>Outlet price (MKD)</label><input className="admin-input" type="number" min="0" required value={form.newPrice} onChange={(e)=>setForm({...form,newPrice:e.target.value})}/></div><div className="admin-field wide"><label>Description</label><textarea className="admin-textarea" rows="4" value={form.description} onChange={(e)=>setForm({...form,description:e.target.value})}/></div>
+      <div className="admin-field wide"><label>Product images</label><input className="admin-input" type="file" accept="image/jpeg,image/png,image/webp" onChange={upload} disabled={uploading}/>{uploading&&<span>Uploading image…</span>}{form.images.length>0&&<div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{form.images.map((image,index)=><div key={image} style={{position:'relative'}}><img src={image} alt="" style={{width:72,height:72,objectFit:'contain',border:'1px solid #ddd'}}/><button type="button" aria-label="Remove image" onClick={()=>setForm({...form,images:form.images.filter((_,i)=>i!==index)})} style={{position:'absolute',top:-6,right:-6,border:0,borderRadius:'50%',background:'#111',color:'#fff',width:20,height:20}}>×</button></div>)}</div>}</div>
+      <div className="admin-field wide"><label>Sizes and stock</label>{form.sizes.map((size,index)=><div key={index} style={{display:'grid',gridTemplateColumns:'1fr 1fr auto',gap:8,marginBottom:8}}><input className="admin-input" placeholder="Size (e.g. 42)" value={size.size} onChange={(e)=>updateSize(index,'size',e.target.value)} required/><input className="admin-input" type="number" min="0" placeholder="Quantity" value={size.stock} onChange={(e)=>updateSize(index,'stock',e.target.value)}/><button className="admin-button danger" type="button" disabled={form.sizes.length===1} onClick={()=>setForm({...form,sizes:form.sizes.filter((_,i)=>i!==index)})}>×</button></div>)}<button className="admin-button secondary" type="button" onClick={()=>setForm({...form,sizes:[...form.sizes,{size:'',stock:0}]})}>+ Add size</button></div><label style={{display:'flex',gap:9,alignItems:'center',fontSize:12}}><input type="checkbox" checked={form.featured} onChange={(e)=>setForm({...form,featured:e.target.checked})}/> Feature this product on the homepage</label>
+    </div><div style={{display:'flex',justifyContent:'flex-end',gap:9,marginTop:24}}><button className="admin-button secondary" type="button" onClick={()=>setOpen(false)}>Cancel</button><button className="admin-button red" disabled={saving||uploading}>{saving?'Saving…':'Save product'}</button></div></div></form></div>}
+  </AdminLayout>;
 }
-
-const I = { width:'100%',padding:9,border:'1px solid #E5E5E5',fontSize:11,fontFamily:'Inter, sans-serif',outline:'none',boxSizing:'border-box',borderRadius:2 };
-const L = { display:'block',fontWeight:700,fontSize:9,letterSpacing:1,textTransform:'uppercase',color:'#999',marginBottom:4 };
-const S = { padding:'7px 12px',border:'1px solid #E5E5E5',fontSize:11,fontFamily:'Inter, sans-serif',cursor:'pointer',borderRadius:2,background:'#FFF' };
