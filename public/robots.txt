@@ -1,4 +1,9 @@
 User-agent: *
 Disallow: /admin
 Disallow: /api
+Disallow: /checkout
+Disallow: /cart
+Disallow: /order-confirmation
 Allow: /
+
+Sitemap: https://outletx-website.vercel.app/sitemap.xml
