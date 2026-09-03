@@ -1,6 +1,7 @@
 import SiteLink from '../../components/SiteLink';
 import { useEffect, useMemo, useState } from 'react';
 import AdminLayout, { EmptyState, StatCard, StatusBadge } from '../../components/admin/AdminLayout';
+import { groupOrderRows, shortOrderReference } from '../../lib/orderGroups';
 
 const money = (value) => `${Number(value || 0).toLocaleString('en-US')} MKD`;
 const dateText = (value) => value ? new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
@@ -9,6 +10,7 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState('');
+  const groupedOrders = useMemo(() => groupOrderRows(orders), [orders]);
 
   const load = async () => {
     try {
@@ -24,22 +26,22 @@ export default function AdminDashboard() {
   useEffect(() => { load(); }, []);
 
   const metrics = useMemo(() => {
-    const pending = orders.filter((order) => ['pending', 'confirmed', 'processing'].includes(order.status || 'pending'));
-    const revenue = orders.filter((order) => order.status !== 'cancelled').reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const pending = groupedOrders.filter((order) => ['pending', 'confirmed', 'processing'].includes(order.status || 'pending'));
+    const revenue = groupedOrders.filter((order) => order.status !== 'cancelled').reduce((sum, order) => sum + Number(order.total || 0), 0);
     const stock = products.reduce((sum, product) => sum + (product.sizes || []).reduce((qty, size) => qty + Number(size.stock || 0), 0), 0);
     const lowStock = products.filter((product) => {
       const qty = (product.sizes || []).reduce((sum, size) => sum + Number(size.stock || 0), 0);
       return qty <= 5;
     });
     return { pending, revenue, stock, lowStock };
-  }, [orders, products]);
+  }, [groupedOrders, products]);
 
   return (
     <AdminLayout title="Overview" action={<SiteLink className="admin-button red" href="/admin/products">+ Add product</SiteLink>}>
       {error && <div className="admin-alert">{error}</div>}
       <section className="admin-grid-stats">
         <StatCard label="Orders to handle" value={metrics.pending.length} detail="Pending or in progress" tone="orange" />
-        <StatCard label="Total sales" value={money(metrics.revenue)} detail={`${orders.length} orders recorded`} tone="green" />
+        <StatCard label="Total sales" value={money(metrics.revenue)} detail={`${groupedOrders.length} orders recorded`} tone="green" />
         <StatCard label="Products" value={products.length} detail={`${metrics.stock} units in stock`} />
         <StatCard label="Low stock" value={metrics.lowStock.length} detail="Products with 5 units or fewer" tone="red" />
       </section>
@@ -47,8 +49,8 @@ export default function AdminDashboard() {
       <div className="admin-split">
         <section className="admin-panel">
           <div className="admin-panel-head"><div><h2>Recent orders</h2><p>Your latest customer orders</p></div><SiteLink href="/admin/orders" className="admin-button secondary">View all</SiteLink></div>
-          {orders.length ? <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>
-            {orders.slice(0, 6).map((order) => <tr key={order.id}><td><strong>#{order.id}</strong><br/><small>{order.product_name || 'Product'}</small></td><td>{order.customer_name || '—'}<br/><small>{order.customer_city || ''}</small></td><td><strong>{money(order.total)}</strong></td><td><StatusBadge status={order.status}/></td><td>{dateText(order.created_at)}</td></tr>)}
+          {groupedOrders.length ? <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>
+            {groupedOrders.slice(0, 6).map((order) => <tr key={order.key}><td><strong>#{shortOrderReference(order)}</strong><br/><small>{order.items.length} {order.items.length===1?'item':'items'}</small></td><td>{order.customer_name || '—'}<br/><small>{order.customer_city || ''}</small></td><td><strong>{money(order.total)}</strong></td><td><StatusBadge status={order.status}/></td><td>{dateText(order.created_at)}</td></tr>)}
           </tbody></table></div> : <EmptyState title="No orders yet" text="New customer orders will appear here automatically." />}
         </section>
 
