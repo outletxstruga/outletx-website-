@@ -1,3 +1,16 @@
 import SiteLink from './SiteLink';
-import { useCart } from '../context/CartContext';
-export default function CartDrawer(){const{cart,cartOpen,setCartOpen,removeFromCart,updateQuantity,cartTotal,cartCount}=useCart();if(!cartOpen)return null;return <div className="cart-layer"><button className="cart-backdrop" aria-label="Close cart" onClick={()=>setCartOpen(false)}/><aside className="cart-drawer" aria-label="Shopping bag"><header><div><p>YOUR SELECTION</p><h2>Shopping bag</h2></div><button aria-label="Close cart" onClick={()=>setCartOpen(false)}>×</button></header><div className="cart-items">{cart.length===0?<div className="cart-empty"><b>Your bag is empty</b><p>Explore the latest OutletX deals and choose your size.</p><SiteLink href="/products" onClick={()=>setCartOpen(false)}>Start shopping</SiteLink></div>:cart.map((item)=><article className="cart-item" key={`${item.id}-${item.size}`}><SiteLink href={`/product/${item.id}`} onClick={()=>setCartOpen(false)}><img src={item.images?.[0]} alt=""/></SiteLink><div><small>{item.brand}</small><h3>{item.name}</h3><p>Size {item.size}</p><div className="cart-item-bottom"><div className="cart-quantity"><button aria-label="Decrease quantity" onClick={()=>updateQuantity(item.id,item.size,item.quantity-1)}>−</button><span>{item.quantity}</span><button aria-label="Increase quantity" onClick={()=>updateQuantity(item.id,item.size,item.quantity+1)}>+</button></div><strong>{(item.newPrice*item.quantity).toLocaleString()} MKD</strong></div><button className="cart-remove" onClick={()=>removeFromCart(item.id,item.size)}>Remove</button></div></article>)}</div>{cart.length>0&&<footer><div><span>Subtotal</span><strong>{cartTotal.toLocaleString()} MKD</strong></div><p>Delivery is calculated at checkout. Cash on delivery.</p><SiteLink href="/checkout" onClick={()=>setCartOpen(false)}>Checkout · {cartCount} {cartCount===1?'item':'items'}</SiteLink><button onClick={()=>setCartOpen(false)}>Continue shopping</button></footer>}</aside></div>}
+import Dialog from './Dialog';
+import CartItems from './CartItems';
+import {useCart} from '../context/CartContext';
+import {useStore} from '../context/StoreContext';
+import {useLanguage} from '../context/LanguageContext';
+import {money} from '../lib/catalogue';
+export default function CartDrawer(){
+ const {cart,cartOpen,setCartOpen,cartTotal,hasIssues}=useCart(),{content}=useStore(),{tr}=useLanguage();
+ const remaining=Math.max(0,content.settings.freeDeliveryOver-cartTotal),close=()=>setCartOpen(false);
+ return <Dialog open={cartOpen} onClose={close} title={tr('Shopping bag')} className="cart-drawer">
+ {cart.length?<><p className="delivery-progress">{remaining?tr('Add {amount} for free delivery.',{amount:money(remaining)}):tr('Your bag qualifies for free delivery.')}</p><CartItems onNavigate={close}/><footer><div><span>{tr('Subtotal')}</span><strong>{money(cartTotal)}</strong></div><p>{tr('Delivery is shown before you place your order.')}</p>
+ {hasIssues?<p className="cart-warning">{tr('Update unavailable items before checkout.')}</p>:<SiteLink className="store-button red" href="/checkout" onClick={close}>{tr('Go to checkout')} →</SiteLink>}
+ <SiteLink className="text-link" href="/cart" onClick={close}>{tr('View shopping bag')}</SiteLink><button className="text-link" onClick={close}>{tr('Continue shopping')}</button></footer></>:<div className="cart-empty"><h3>{tr('Your bag is empty')}</h3><p>{tr('Find your next pair and choose a size to get started.')}</p><SiteLink className="store-button red" href="/products" onClick={close}>{tr('Browse products')}</SiteLink></div>}
+ </Dialog>;
+}

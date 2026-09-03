@@ -5,12 +5,21 @@ import defaultContent from '../data/content.json';
 const StoreContext = createContext();
 const REVALIDATE_AFTER_MS = 30000;
 
-export function StoreProvider({ children }) {
+export function StoreProvider({ children, initialStore }) {
   const { pathname } = useRouter();
-  const [store, setStore] = useState({ products: [], content: defaultContent, checkoutReady: false });
-  const [loading, setLoading] = useState(true);
+  const [store, setStore] = useState(initialStore || { products: [], content: defaultContent, checkoutReady: false });
+  const [loading, setLoading] = useState(!initialStore);
   const [error, setError] = useState('');
   const lastLoaded = useRef(0);
+
+  // Preserve fresh data during navigation, but use pre-rendered data for the first public page.
+  useEffect(() => {
+    if (initialStore && !lastLoaded.current) {
+      setStore(initialStore);
+      setLoading(false);
+      lastLoaded.current = Date.now();
+    }
+  }, [initialStore]);
 
   useEffect(() => {
     // Admin pages have their own protected data requests; do not fetch the whole shop too.
@@ -43,15 +52,16 @@ export function StoreProvider({ children }) {
         if (active) setLoading(false);
       }
     };
-    const refresh = () => load(true);
+    const refreshIfStale = () => load();
+    const refreshNow = () => load(true);
     load();
-    window.addEventListener('focus', refresh);
-    window.addEventListener('outletx:store-updated', refresh);
+    window.addEventListener('focus', refreshIfStale);
+    window.addEventListener('outletx:store-updated', refreshNow);
     return () => {
       active = false;
       controller.abort();
-      window.removeEventListener('focus', refresh);
-      window.removeEventListener('outletx:store-updated', refresh);
+      window.removeEventListener('focus', refreshIfStale);
+      window.removeEventListener('outletx:store-updated', refreshNow);
     };
   }, [pathname]);
 

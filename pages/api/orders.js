@@ -25,14 +25,22 @@ export default async function handler(req, res) {
       const { id, status } = req.body || {};
       if (!['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].includes(status) || !id) return res.status(400).json({ error: 'Choose a valid order status.' });
       const table = /^[0-9]+$/.test(String(id)) ? 'orders' : 'outletx_order_lines';
-      const { data, error } = await database.from(table).update({ status }).eq('id', id).select('*');
+      const currentOrder = table === 'outletx_order_lines';
+      const before = await database.from(table).select(currentOrder ? 'status,checkout_id' : 'status').eq('id', id).maybeSingle();
+      if (before.error) throw before.error;
+      if (!before.data) return res.status(404).json({ error: 'Order not found.' });
+      if (before.data.status === status) return res.status(200).json({ success: true, unchanged: true });
+      let change = database.from(table).update({ status });
+      change = currentOrder ? change.eq('checkout_id', before.data.checkout_id) : change.eq('id', id);
+      const { data, error } = await change.select('*');
       if (error) throw error;
       if (!data?.length) return res.status(404).json({ error: 'Order not found.' });
-      if (status === 'shipped') {
-        try { const { sendOrderEmail } = await import('../../lib/email'); await sendOrderEmail(data[0]); }
-        catch { console.error('Order saved, but shipping email failed.'); }
+      let emailNotification = 'not-required';
+      if (status === 'shipped' || status === 'delivered') {
+        try { const { sendOrderEmail } = await import('../../lib/email'); const result=await sendOrderEmail(data);emailNotification=result.skipped?'not-configured':'sent'; }
+        catch { emailNotification='failed';console.error('Order saved, but status email failed.'); }
       }
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, emailNotification });
     }
     const body = req.body || {};
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.checkoutId || '')) return res.status(400).json({ error: 'Refresh checkout and try again.' });
@@ -56,14 +64,14 @@ export default async function handler(req, res) {
       return respondExisting(retry.data);
     }
     if (saved.error || saved.data?.length !== rows.length) throw new Error('Order save failed');
+    let emailNotification = 'unknown';
     try {
       const { sendOrderEmail, sendAdminNotification } = await import('../../lib/email');
-      await Promise.all(saved.data.map(async (order) => {
-        await sendOrderEmail(order);
-        await sendAdminNotification(order);
-      }));
-    } catch { console.error('Order saved, but notification email failed.'); }
-    return res.status(201).json({ success: true, orderIds: saved.data.map((row) => row.id) });
+      const [customerResult,adminResult]=await Promise.allSettled([sendOrderEmail(saved.data),sendAdminNotification(saved.data)]);
+      emailNotification=customerResult.status==='rejected'?'failed':customerResult.value.skipped?'not-configured':'sent';
+      if(adminResult.status==='rejected')console.error('Order saved, but the admin email failed.');
+    } catch { emailNotification='failed';console.error('Order saved, but notification email failed.'); }
+    return res.status(201).json({ success: true, orderIds: saved.data.map((row) => row.id), emailNotification });
   } catch {
     return res.status(503).json({ error: 'We could not confirm your order or save the change. Please retry; your bag has been kept.' });
   }

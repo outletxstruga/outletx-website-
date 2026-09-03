@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+const source = await readFile(new URL('../lib/orderValidation.js', import.meta.url), 'utf8');
+const {makeOrderRows} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const products = [{id:1,name:'Shoe',brand:'Brand',sku:'A',newPrice:1000,inStock:true,sizes:[{size:'42',stock:3}]},{id:2,name:'Shoe 2',brand:'Brand',sku:'B',newPrice:500,inStock:true,sizes:[{size:'40',stock:4}]}];
+const settings={deliveryFee:150,freeDeliveryOver:3000};
+const body=()=>({checkoutId:'test',items:[{id:1,size:'42',quantity:1,price:1000},{id:2,size:'40',quantity:1,price:500}],total:1650,customerInfo:{fullName:'Test buyer',phone:'test-phone',email:'test@example.com',city:'Test',address:'Test address',notes:'Doorbell'}});
+test('all bag lines and notes saved; delivery charged exactly once',()=>{const rows=makeOrderRows(body(),products,settings);assert.equal(rows.length,2);assert.equal(rows.reduce((sum,r)=>sum+r.total,0),1650);assert.equal(rows[0].customer_notes,'Doorbell');});
+test('free delivery applies at threshold',()=>{const b=body();b.items=[{id:1,size:'42',quantity:3,price:1000}];b.total=3000;assert.equal(makeOrderRows(b,products,settings)[0].total,3000);});
+test('reject tampered price',()=>{const b=body();b.items[0].price=1;assert.throws(()=>makeOrderRows(b,products,settings),/price/);});
+test('reject tampered total',()=>{const b=body();b.total=1;assert.throws(()=>makeOrderRows(b,products,settings),/total/);});
+test('reject unavailable size and quantity',()=>{const b=body();b.items[0].quantity=4;assert.throws(()=>makeOrderRows(b,products,settings),/quantity/);b.items[0].quantity=1;b.items[0].size='99';assert.throws(()=>makeOrderRows(b,products,settings),/quantity/);});
+test('reject duplicate size lines',()=>{const b=body();b.items=[b.items[0],b.items[0]];assert.throws(()=>makeOrderRows(b,products,settings),/duplicate/);});
+test('reject invalid delivery data',()=>{const b=body();b.customerInfo.email='invalid';assert.throws(()=>makeOrderRows(b,products,settings),/email/);});
+test('reject empty bag',()=>{const b=body();b.items=[];assert.throws(()=>makeOrderRows(b,products,settings),/bag/);});
