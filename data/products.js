@@ -13,7 +13,7 @@ const products = [
     "color": "Neon",
     "description": "",
     "images": [
-      "/images/products/1782507220334_maratonki-adidas-ultrarun-5-tr-jq0019-2.jpg"
+      "/images/products/ultrarun-5-studio-v2.png"
     ],
     "sizes": [
       {
@@ -47,7 +47,7 @@ const products = [
     "color": "Brown/Pink",
     "description": "",
     "images": [
-      "/images/products/1782508670275_669261.jpg"
+      "/images/products/vl-court-bold-brown-studio-v2.png"
     ],
     "sizes": [
       {
@@ -89,7 +89,7 @@ const products = [
     "color": "Red",
     "description": "",
     "images": [
-      "/images/products/1782508962810_buty-mlodziezowe-adidas-court-bold-bordowe-ih4780-skorzane-sportowe-36-b-iext187545553.jpg"
+      "/images/products/vl-court-bold-jr-burgundy-studio-v2.png"
     ],
     "sizes": [
       {
