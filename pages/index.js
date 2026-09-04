@@ -2,6 +2,7 @@ import SiteLink from '../components/SiteLink';
 import Seo from '../components/Seo';
 import StoreLayout from '../components/store/StoreLayout';
 import HeroSlider from '../components/HeroSlider';
+import PromoPopup from '../components/PromoPopup';
 import ProductCard from '../components/ProductCard';
 import StoreImage from '../components/StoreImage';
 import { useStore } from '../context/StoreContext';
@@ -37,6 +38,7 @@ export default function Home() {
       description="Find your next pair at OutletX. Browse branded shoes, available sizes and outlet prices. Visit Dua Mall, Struga or order with cash on delivery."
     />
     <HeroSlider />
+    <PromoPopup product={sale || featured[0]} />
 
     <section className="home-proof" aria-label={tr('Why shop with OutletX')}>
       <article><span>01</span><div><b>{tr('Live availability')}</b><p>{tr('Only available sizes are shown online.')}</p></div></article>
